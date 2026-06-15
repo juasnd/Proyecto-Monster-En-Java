@@ -1,0 +1,24 @@
+DEPENDENCIAS DEL PROYECTO
+
+Para que el proyecto funcione correctamente, deben estar agregadas estas dependencias en Libraries de NetBeans:
+
+1. mysql-connector-java-8.0.18.jar
+
+Permite la conexión entre el proyecto Java y la base de datos MySQL.
+
+Sin esta librería, el sistema no podrá conectarse a la base de datos ni ejecutar consultas SQL.
+
+2. jakarta.servlet-api-5.0.0.jar.zip
+
+Permite el funcionamiento de Servlets y JSP dentro del proyecto.
+
+Sin esta librería, el sistema mostrará errores en clases como HttpServlet, HttpServletRequest, HttpServletResponse y ServletException.
+
+Dependencias necesarias:
+
+mysql-connector-java-8.0.18.jar
+jakarta.servlet-api-5.0.0.jar.zip
+
+Estas librerías deben estar agregadas en:
+
+Libraries
