@@ -46,27 +46,7 @@
 
     <body class="body-dashboard">
 
-        <header class="topbar">
-            <div class="topbar-logo">
-                <img 
-                    src="${pageContext.request.contextPath}/img/Monsters-Inc.-Symbol.png" 
-                    alt="Logo Master Monster"
-                >
-
-                <div>
-                    <h1>Master Monster</h1>
-                    <span>Sistema de gestión de proyectos</span>
-                </div>
-            </div>
-
-            <nav class="topbar-menu">
-                <a href="${pageContext.request.contextPath}/pagPrincipal.jsp">Inicio</a>
-                <a href="${pageContext.request.contextPath}/DepartamentoController">Departamentos</a>
-                <a href="${pageContext.request.contextPath}/CargoController">Cargos</a>
-                <a href="${pageContext.request.contextPath}/EmpleadoController">Empleados</a>
-                <a href="${pageContext.request.contextPath}/Logout" class="btn-salir">Cerrar sesión</a>
-            </nav>
-        </header>
+        <jsp:include page="/WEB-INF/includes/topbar.jsp" />
 
         <main class="crud-page">
 
@@ -109,6 +89,7 @@
                         <a href="${pageContext.request.contextPath}/CargoController" class="btn-crud celeste">
                             Recargar
                         </a>
+
                         <button type="button" class="btn-crud reporte" data-reporte-toggle="reporteCargos">
                             Reportes
                         </button>
@@ -119,6 +100,8 @@
                         <input type="text" id="buscarCargo" placeholder="Buscar cargo...">
                     </div>
                 </div>
+
+
 
                 <section id="reporteCargos"
                          class="reporte-panel"
@@ -338,22 +321,43 @@
                                         <td>
                                             <div class="acciones-tabla">
                                                 
-                                                <a href="<%= verCargoUrl %>">
-                                                    Ver
+                                                <a
+                                                    class="btn-accion-icono accion-ver"
+                                                    href="<%= verCargoUrl %>"
+                                                    title="Ver"
+                                                    aria-label="Ver"
+                                                >
+                                                    <img
+                                                        src="${pageContext.request.contextPath}/img/iconos_master_monster/ver.png"
+                                                        alt=""
+                                                    >
                                                 </a>
 
-                                                <a href="<%= editarCargoUrl %>">
-                                                    Editar
+                                                <a
+                                                    class="btn-accion-icono accion-editar"
+                                                    href="<%= editarCargoUrl %>"
+                                                    title="Editar"
+                                                    aria-label="Editar"
+                                                >
+                                                    <img
+                                                        src="${pageContext.request.contextPath}/img/iconos_master_monster/editar.png"
+                                                        alt=""
+                                                    >
                                                 </a>
 
-                                                <a 
+                                                <a
+                                                    class="btn-accion-icono accion-eliminar"
                                                     href="<%= eliminarCargoUrl %>"
+                                                    title="Eliminar"
+                                                    aria-label="Eliminar"
                                                     onclick="
                                                         return confirm('¿Seguro que desea eliminar este cargo?');
                                                     "
-                                                    class="accion-eliminar"
                                                 >
-                                                    Eliminar
+                                                    <img
+                                                        src="${pageContext.request.contextPath}/img/iconos_master_monster/eliminar.png"
+                                                        alt=""
+                                                    >
                                                 </a>
                                             </div>
                                         </td>

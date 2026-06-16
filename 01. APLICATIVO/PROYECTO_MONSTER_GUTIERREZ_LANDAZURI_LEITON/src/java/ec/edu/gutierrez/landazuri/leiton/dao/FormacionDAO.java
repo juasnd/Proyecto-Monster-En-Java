@@ -12,6 +12,8 @@ import java.util.List;
 
 public class FormacionDAO extends BaseDAO {
 
+    private final CodigoDAO codigoDAO = new CodigoDAO();
+
     public List<Formacion> listarPorEmpleado(String codigoEmpleado) {
         List<Formacion> formaciones = new ArrayList<>();
         String sql = "SELECT PEFOR_CODIGO, PEEMP_CODIGO, PEFOR_NIVEL, PEFOR_TITULO, "
@@ -87,6 +89,12 @@ public class FormacionDAO extends BaseDAO {
     }
 
     private String generarCodigoFormacion(Connection con) throws SQLException {
+        try {
+            return codigoDAO.generarCodigo(con, "PEFOR_CODIGO");
+        } catch (SQLException e) {
+            System.out.println("No se pudo generar PEFOR_CODIGO con sp_generar_codigo: " + e.getMessage());
+        }
+
         int numero = obtenerMayorSecuencia(con) + 1;
         String codigo;
 

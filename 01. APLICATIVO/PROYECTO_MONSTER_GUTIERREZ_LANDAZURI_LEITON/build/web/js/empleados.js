@@ -20,15 +20,12 @@ const CAMPOS_FORMACION = [
     "formacionObservacion"
 ];
 const CAMPOS_VALIDABLES = [
-    "codigoPersona",
-    "codigoEmpleado",
     "cedula",
     "nombres",
     "apellidos",
     "fechaNacimiento",
     "sexoCodigo",
     "estadoCivilCodigo",
-    "cargasFamiliares",
     "departamentoCodigo",
     "cargoCodigo",
     "direccion",
@@ -162,11 +159,13 @@ function prepararFormularioNuevo(panel, form, accion, titulo) {
     limpiarFamiliares();
 
     if (codigoPersona) {
-        codigoPersona.readOnly = false;
+        codigoPersona.readOnly = true;
+        codigoPersona.placeholder = "Se genera automaticamente";
     }
 
     if (codigoEmpleado) {
-        codigoEmpleado.readOnly = false;
+        codigoEmpleado.readOnly = true;
+        codigoEmpleado.placeholder = "Se genera automaticamente";
     }
 
     if (cargo) {
@@ -572,8 +571,6 @@ function obtenerMensajeValidacion(id, valor) {
     switch (id) {
         case "codigoEmpleado":
             return validarCodigo(valor, "El código de empleado");
-        case "codigoPersona":
-            return validarCodigo(valor, "El código de persona");
         case "cedula":
             return validarCedula(valor);
         case "nombres":
@@ -586,8 +583,6 @@ function obtenerMensajeValidacion(id, valor) {
             return valor ? "" : "Debe seleccionar el sexo.";
         case "estadoCivilCodigo":
             return "";
-        case "cargasFamiliares":
-            return validarCargas(valor);
         case "departamentoCodigo":
             return valor ? "" : "Debe seleccionar el departamento.";
         case "cargoCodigo":
@@ -720,22 +715,6 @@ function validarFechaNacimiento(valor) {
 
     if (edad < 18) {
         return "El empleado debe tener al menos 18 años.";
-    }
-
-    return "";
-}
-
-function validarCargas(valor) {
-    const valorNormalizado = valor || "0";
-
-    if (!/^\d+$/.test(valorNormalizado)) {
-        return "Las cargas familiares solo deben contener números.";
-    }
-
-    const numero = Number(valorNormalizado);
-
-    if (numero < 0 || numero > 99) {
-        return "Las cargas familiares deben estar entre 0 y 99.";
     }
 
     return "";
@@ -1030,7 +1009,6 @@ function camposFamiliares() {
         "familiarParentesco",
         "familiarFechaNacimiento",
         "familiarTelefono",
-        "familiarCarga",
         "familiarObservacion"
     ];
 }
@@ -1097,9 +1075,6 @@ function validarCampoFamiliar(id) {
             break;
         case "familiarTelefono":
             mensaje = validarTelefonoFamiliar(valor);
-            break;
-        case "familiarCarga":
-            mensaje = valor === "S" || valor === "N" ? "" : "Debe indicar si es carga familiar.";
             break;
         case "familiarObservacion":
             mensaje = valor.length > 200 ? "La observacion familiar no debe superar 200 caracteres." : "";
@@ -1179,7 +1154,7 @@ function leerFamiliarFormulario() {
         apellido: valorCampo("familiarApellidos"),
         fechaNacimiento: valorCampo("familiarFechaNacimiento"),
         telefono: valorCampo("familiarTelefono"),
-        cargaFamiliar: valorCampo("familiarCarga"),
+        cargaFamiliar: "S",
         observacion: valorCampo("familiarObservacion")
     });
 }
@@ -1195,7 +1170,7 @@ function normalizarFamiliar(familiar) {
         apellido: familiar && familiar.apellido ? String(familiar.apellido).trim() : "",
         fechaNacimiento: familiar && familiar.fechaNacimiento ? String(familiar.fechaNacimiento).trim() : "",
         telefono: familiar && familiar.telefono ? String(familiar.telefono).trim() : "",
-        cargaFamiliar: familiar && familiar.cargaFamiliar ? String(familiar.cargaFamiliar).trim().toUpperCase() : "",
+        cargaFamiliar: familiar && familiar.cargaFamiliar ? String(familiar.cargaFamiliar).trim().toUpperCase() : "S",
         observacion: familiar && familiar.observacion ? String(familiar.observacion).trim() : ""
     };
 }
@@ -1217,7 +1192,7 @@ function renderizarFamiliares() {
     if (familiares.length === 0) {
         const fila = document.createElement("tr");
         const celda = document.createElement("td");
-        celda.colSpan = 8;
+        celda.colSpan = 7;
         celda.className = "tabla-vacia";
         celda.textContent = "Sin familiares agregados.";
         fila.appendChild(celda);
@@ -1235,7 +1210,6 @@ function renderizarFamiliares() {
             familiar.descripcionParentesco,
             familiar.fechaNacimiento,
             familiar.telefono,
-            textoCargaFamiliar(familiar.cargaFamiliar),
             familiar.observacion
         ].forEach(function (valor) {
             const celda = document.createElement("td");
@@ -1276,7 +1250,6 @@ function editarFamiliar(indice) {
     asignarValorCampo("familiarParentesco", familiar.codigoParentesco);
     asignarValorCampo("familiarFechaNacimiento", familiar.fechaNacimiento);
     asignarValorCampo("familiarTelefono", familiar.telefono);
-    asignarValorCampo("familiarCarga", familiar.cargaFamiliar);
     asignarValorCampo("familiarObservacion", familiar.observacion);
     actualizarBotonFamiliar();
     activarTabPorId("familia");
@@ -1393,23 +1366,7 @@ function actualizarCargasFamiliares() {
 }
 
 function contarCargasFamiliares() {
-    return familiares.filter(function (familiar) {
-        return normalizarCargaFamiliarCliente(familiar.cargaFamiliar) === "S";
-    }).length;
-}
-
-function normalizarCargaFamiliarCliente(valor) {
-    const carga = (valor || "").trim().toUpperCase();
-
-    if (carga === "S" || carga === "SI") {
-        return "S";
-    }
-
-    if (carga === "N" || carga === "NO") {
-        return "N";
-    }
-
-    return "";
+    return familiares.length;
 }
 
 function familiaTieneDatosParciales() {
@@ -1435,18 +1392,6 @@ function validarFamiliaAntesDeEnviar() {
 
     limpiarCampo("familiares");
     return true;
-}
-
-function textoCargaFamiliar(valor) {
-    if (valor === "S") {
-        return "Sí";
-    }
-
-    if (valor === "N") {
-        return "No";
-    }
-
-    return "";
 }
 
 function mostrarErrorCampo(id, mensaje) {

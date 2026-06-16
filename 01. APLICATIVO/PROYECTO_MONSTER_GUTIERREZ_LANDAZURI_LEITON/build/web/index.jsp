@@ -43,6 +43,8 @@
                         <p class="mensaje-error-general">El usuario ingresado no existe.</p>
                     <% } else if ("bloqueado".equals(error)) { %>
                         <p class="mensaje-error-general">La cuenta está bloqueada por superar los 3 intentos.</p>
+                    <% } else if ("inactivo".equals(error)) { %>
+                        <p class="mensaje-error-general">La cuenta se encuentra inactiva.</p>
                     <% } else if ("intentos".equals(error)) { %>
                         <p class="mensaje-error-general">
                             Usuario o contraseña incorrectos. Intento <%= num %> de 3.

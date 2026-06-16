@@ -192,7 +192,7 @@
     boolean mostrarFormulario = nuevo || edicion || (error != null && !lectura);
     boolean mostrarModalVer = lectura;
     String disabled = "";
-    String readonlyCodigo = edicion ? "readonly" : "";
+    String readonlyCodigo = "readonly";
     String accionFormulario = edicion ? "actualizar" : "guardar";
     String tituloFormulario = lectura ? "Detalle de empleado" : (edicion ? "Editar empleado" : "Añadir empleado");
     String fotoActual = personaForm.getFoto();
@@ -206,32 +206,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Empleados | Master Monster</title>
         <link rel="icon" type="image/png" href="img/favicon.png">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/CSS/estilos.css?v=20260612-modal1">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/CSS/estilos.css?v=20260616-empleados1">
     </head>
 
     <body class="body-dashboard">
 
-        <header class="topbar">
-            <div class="topbar-logo">
-                <img 
-                    src="${pageContext.request.contextPath}/img/Monsters-Inc.-Symbol.png" 
-                    alt="Logo Master Monster"
-                >
-
-                <div>
-                    <h1>Master Monster</h1>
-                    <span>Sistema de gestión de proyectos</span>
-                </div>
-            </div>
-
-            <nav class="topbar-menu">
-                <a href="${pageContext.request.contextPath}/pagPrincipal.jsp">Inicio</a>
-                <a href="${pageContext.request.contextPath}/DepartamentoController">Departamentos</a>
-                <a href="${pageContext.request.contextPath}/CargoController">Cargos</a>
-                <a href="${pageContext.request.contextPath}/EmpleadoController">Empleados</a>
-                <a href="${pageContext.request.contextPath}/Logout" class="btn-salir">Cerrar sesión</a>
-            </nav>
-        </header>
+        <jsp:include page="/WEB-INF/includes/topbar.jsp" />
 
         <main class="crud-page empleado-page">
 
@@ -300,11 +280,14 @@
                         >
                             Mostrar todos
                         </a>
+
                         <button type="button" class="btn-crud reporte" data-reporte-toggle="reporteEmpleados">
                             Reportes
                         </button>
                     </div>
                 </form>
+
+
 
                 <section id="reporteEmpleados"
                          class="reporte-panel"
@@ -399,25 +382,42 @@
                                         <td>
                                             <div class="acciones-tabla">
                                                 <a
+                                                    class="btn-accion-icono accion-editar"
                                                     href="<%= editarEmpleadoUrl %>"
+                                                    title="Editar"
+                                                    aria-label="Editar"
                                                 >
-                                                    Editar
+                                                    <img
+                                                        src="${pageContext.request.contextPath}/img/iconos_master_monster/editar.png"
+                                                        alt=""
+                                                    >
                                                 </a>
 
                                                 <a
+                                                    class="btn-accion-icono accion-ver"
                                                     href="<%= verEmpleadoUrl %>"
+                                                    title="Ver"
+                                                    aria-label="Ver"
                                                 >
-                                                    Ver
+                                                    <img
+                                                        src="${pageContext.request.contextPath}/img/iconos_master_monster/ver.png"
+                                                        alt=""
+                                                    >
                                                 </a>
 
-                                                <a 
+                                                <a
+                                                    class="btn-accion-icono accion-eliminar"
                                                     href="<%= eliminarEmpleadoUrl %>"
+                                                    title="Eliminar"
+                                                    aria-label="Eliminar"
                                                     onclick="
                                                         return confirm('¿Seguro que desea eliminar este empleado?');
                                                     "
-                                                    class="accion-eliminar"
                                                 >
-                                                    Eliminar
+                                                    <img
+                                                        src="${pageContext.request.contextPath}/img/iconos_master_monster/eliminar.png"
+                                                        alt=""
+                                                    >
                                                 </a>
                                             </div>
                                         </td>
@@ -459,6 +459,18 @@
                         <input type="hidden" id="fotoActual" name="fotoActual" value="<%= h(fotoActual) %>">
                         <input
                             type="hidden"
+                            id="codigoPersona"
+                            name="codigoPersona"
+                            value="<%= h(personaForm.getPeperCodigo()) %>"
+                        >
+                        <input
+                            type="hidden"
+                            id="cargasFamiliares"
+                            name="cargasFamiliares"
+                            value="<%= familiaresForm == null ? 0 : familiaresForm.size() %>"
+                        >
+                        <input
+                            type="hidden"
                             id="familiaresJson"
                             name="familiaresJson"
                             value="<%= h(jsonFamiliares(familiaresForm)) %>"
@@ -491,10 +503,13 @@
                                             name="codigoEmpleado"
                                             maxlength="10"
                                             value="<%= h(empleadoForm.getPeempCodigo()) %>"
+                                            placeholder="Se genera automaticamente"
                                             <%= readonlyCodigo %>
                                             <%= disabled %>
-                                            required
                                         >
+                                        <small class="campo-ayuda">
+                                            El codigo se genera automaticamente al guardar.
+                                        </small>
                                         <small class="field-error-message" data-error-for="codigoEmpleado"></small>
                                     </div>
 
@@ -553,17 +568,6 @@
                                 <% } %>
                             </div>
 
-                            <div class="acciones-ficha acciones-ficha-minimas">
-                                <% if (!lectura) { %>
-                                    <button type="submit" id="btnSubmitEmpleado" class="btn-ficha principal">
-                                        <%= edicion ? "Actualizar" : "Guardar" %>
-                                    </button>
-                                <% } %>
-
-                                <button type="button" id="btnCancelarFormulario" class="btn-ficha secundario">
-                                    Cancelar
-                                </button>
-                            </div>
                         </div>
 
                         <div class="tabs-empleado" role="tablist" aria-label="Secciones de empleado">
@@ -580,21 +584,6 @@
 
                         <section class="tab-panel activo" id="datosGenerales">
                             <div class="form-grid-empleado">
-                                <div class="grupo-campo">
-                                    <label for="codigoPersona">Código persona</label>
-                                    <input
-                                        type="text"
-                                        id="codigoPersona"
-                                        name="codigoPersona"
-                                        maxlength="10"
-                                        value="<%= h(personaForm.getPeperCodigo()) %>"
-                                        <%= readonlyCodigo %>
-                                        <%= disabled %>
-                                        required
-                                    >
-                                    <small class="field-error-message" data-error-for="codigoPersona"></small>
-                                </div>
-
                                 <div class="grupo-campo">
                                     <label for="cedula">Cédula</label>
                                     <input
@@ -662,21 +651,6 @@
                                            } %>
                                     </select>
                                     <small class="field-error-message" data-error-for="estadoCivilCodigo"></small>
-                                </div>
-
-                                <div class="grupo-campo">
-                                    <label for="cargasFamiliares">Cargas familiares</label>
-                                    <input
-                                        type="number"
-                                        id="cargasFamiliares"
-                                        name="cargasFamiliares"
-                                        min="0"
-                                        max="99"
-                                        value="<%= h(personaForm.getCargasFamiliares()) %>"
-                                        readonly
-                                        <%= disabled %>
-                                    >
-                                    <small class="field-error-message" data-error-for="cargasFamiliares"></small>
                                 </div>
 
                                 <div class="grupo-campo">
@@ -918,16 +892,6 @@
                                         <small class="field-error-message" data-error-for="familiarTelefono"></small>
                                     </div>
 
-                                    <div class="grupo-campo">
-                                        <label for="familiarCarga">¿Es carga familiar?</label>
-                                        <select id="familiarCarga" <%= disabled %>>
-                                            <option value="">Seleccione...</option>
-                                            <option value="S">Sí</option>
-                                            <option value="N">No</option>
-                                        </select>
-                                        <small class="field-error-message" data-error-for="familiarCarga"></small>
-                                    </div>
-
                                     <div class="grupo-campo campo-full">
                                         <label for="familiarObservacion">Observación</label>
                                         <input type="text" id="familiarObservacion" maxlength="200" <%= disabled %>>
@@ -965,7 +929,6 @@
                                             <th>Parentesco</th>
                                             <th>Fecha nacimiento</th>
                                             <th>Teléfono</th>
-                                            <th>Carga familiar</th>
                                             <th>Observación</th>
                                             <th>Acciones</th>
                                         </tr>
@@ -973,12 +936,24 @@
 
                                     <tbody id="tablaFamiliaresBody">
                                         <tr>
-                                            <td colspan="8" class="tabla-vacia">Sin familiares agregados.</td>
+                                            <td colspan="7" class="tabla-vacia">Sin familiares agregados.</td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </section>
+
+                        <div class="empleado-modal-actions">
+                            <button type="button" id="btnCancelarFormulario" class="btn-ficha btn-cancelar">
+                                Cancelar
+                            </button>
+
+                            <% if (!lectura) { %>
+                                <button type="submit" id="btnSubmitEmpleado" class="btn-ficha btn-guardar">
+                                    <%= edicion ? "Actualizar" : "Guardar" %>
+                                </button>
+                            <% } %>
+                        </div>
                     </form>
                 </section>
             </section>
@@ -1062,10 +1037,6 @@
                                     <div>
                                         <span>Código empleado</span>
                                         <strong><%= h(empleadoForm.getPeempCodigo()) %></strong>
-                                    </div>
-                                    <div>
-                                        <span>Código persona</span>
-                                        <strong><%= h(personaForm.getPeperCodigo()) %></strong>
                                     </div>
                                     <div>
                                         <span>Cédula</span>
@@ -1180,7 +1151,6 @@
                                                 <th>Parentesco</th>
                                                 <th>Fecha nacimiento</th>
                                                 <th>Teléfono</th>
-                                                <th>Carga familiar</th>
                                                 <th>Observación</th>
                                             </tr>
                                         </thead>
@@ -1194,13 +1164,12 @@
                                                         <td><%= h(familiar.getDescripcionParentesco()) %></td>
                                                         <td><%= h(familiar.getFechaNacimiento()) %></td>
                                                         <td><%= h(familiar.getTelefono()) %></td>
-                                                        <td><%= h(textoCarga(familiar.getCargaFamiliar())) %></td>
                                                         <td><%= h(familiar.getObservacion()) %></td>
                                                     </tr>
                                                 <% } %>
                                             <% } else { %>
                                                 <tr>
-                                                    <td colspan="7" class="tabla-vacia">
+                                                    <td colspan="6" class="tabla-vacia">
                                                         No existen familiares registrados.
                                                     </td>
                                                 </tr>
@@ -1220,7 +1189,7 @@
 
         </main>
 
-        <script src="${pageContext.request.contextPath}/js/empleados.js?v=20260612-modal1" defer></script>
+        <script src="${pageContext.request.contextPath}/js/empleados.js?v=20260616-empleados1" defer></script>
         <script src="${pageContext.request.contextPath}/js/paginacion.js?v=20260611-pag1" defer></script>
         <script src="${pageContext.request.contextPath}/js/reportes.js?v=20260611-pag1" defer></script>
     </body>

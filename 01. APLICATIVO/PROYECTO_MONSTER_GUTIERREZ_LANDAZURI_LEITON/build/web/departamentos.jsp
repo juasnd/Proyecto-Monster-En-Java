@@ -45,27 +45,7 @@
 
     <body class="body-dashboard">
 
-        <header class="topbar">
-            <div class="topbar-logo">
-                <img 
-                    src="${pageContext.request.contextPath}/img/Monsters-Inc.-Symbol.png" 
-                    alt="Logo Master Monster"
-                >
-
-                <div>
-                    <h1>Master Monster</h1>
-                    <span>Sistema de gestión de proyectos</span>
-                </div>
-            </div>
-
-            <nav class="topbar-menu">
-                <a href="${pageContext.request.contextPath}/pagPrincipal.jsp">Inicio</a>
-                <a href="${pageContext.request.contextPath}/DepartamentoController">Departamentos</a>
-                <a href="${pageContext.request.contextPath}/CargoController">Cargos</a>
-                <a href="${pageContext.request.contextPath}/EmpleadoController">Empleados</a>
-                <a href="${pageContext.request.contextPath}/Logout" class="btn-salir">Cerrar sesión</a>
-            </nav>
-        </header>
+        <jsp:include page="/WEB-INF/includes/topbar.jsp" />
 
         <main class="crud-page">
 
@@ -111,6 +91,7 @@
                         <a href="${pageContext.request.contextPath}/DepartamentoController" class="btn-crud celeste">
                             Recargar
                         </a>
+
                         <button type="button" class="btn-crud reporte" data-reporte-toggle="reporteDepartamentos">
                             Reportes
                         </button>
@@ -121,6 +102,8 @@
                         <input type="text" id="buscarDepartamento" placeholder="Buscar departamento...">
                     </div>
                 </div>
+
+
 
                 <section id="reporteDepartamentos"
                          class="reporte-panel"
@@ -286,24 +269,45 @@
                                         <td><%= dep.getDescripcion() %></td>
                                         <td>
                                             <div class="acciones-tabla">
-                                                <a href="<%= verDepartamentoUrl %>">
-                                                    Ver
+                                                <a
+                                                    class="btn-accion-icono accion-ver"
+                                                    href="<%= verDepartamentoUrl %>"
+                                                    title="Ver"
+                                                    aria-label="Ver"
+                                                >
+                                                    <img
+                                                        src="${pageContext.request.contextPath}/img/iconos_master_monster/ver.png"
+                                                        alt=""
+                                                    >
                                                 </a>
 
-                                                <a href="<%= editarDepartamentoUrl %>">
-                                                    Editar
+                                                <a
+                                                    class="btn-accion-icono accion-editar"
+                                                    href="<%= editarDepartamentoUrl %>"
+                                                    title="Editar"
+                                                    aria-label="Editar"
+                                                >
+                                                    <img
+                                                        src="${pageContext.request.contextPath}/img/iconos_master_monster/editar.png"
+                                                        alt=""
+                                                    >
                                                 </a>
 
-                                                <a 
+                                                <a
+                                                    class="btn-accion-icono accion-eliminar"
                                                     href="<%= eliminarDepartamentoUrl %>"
+                                                    title="Eliminar"
+                                                    aria-label="Eliminar"
                                                     onclick="
                                                         return confirm(
                                                             '¿Seguro que desea eliminar este departamento?'
                                                         );
                                                     "
-                                                    class="accion-eliminar"
                                                 >
-                                                    Eliminar
+                                                    <img
+                                                        src="${pageContext.request.contextPath}/img/iconos_master_monster/eliminar.png"
+                                                        alt=""
+                                                    >
                                                 </a>
                                             </div>
                                         </td>

@@ -13,6 +13,8 @@ import java.util.List;
 
 public class FamiliarDAO extends BaseDAO {
 
+    private final CodigoDAO codigoDAO = new CodigoDAO();
+
     public List<Familiar> listarPorPersona(String peperCodigo) {
         List<Familiar> familiares = new ArrayList<>();
         String sql = "SELECT f.PEFAM_CODIGO, f.PEPER_CODIGO, f.PEPAR_CODIGO, "
@@ -117,6 +119,12 @@ public class FamiliarDAO extends BaseDAO {
     }
 
     public String generarCodigoFamiliar(Connection con) throws SQLException {
+        try {
+            return codigoDAO.generarCodigo(con, "PEFAM_CODIGO");
+        } catch (SQLException e) {
+            System.out.println("No se pudo generar PEFAM_CODIGO con sp_generar_codigo: " + e.getMessage());
+        }
+
         int numero = obtenerMayorSecuencia(con) + 1;
         String codigo;
 

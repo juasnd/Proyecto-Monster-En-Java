@@ -1,0 +1,3 @@
+Iconos separados desde la imagen aprobada por el usuario.
+Formato: PNG 512x512 con fondo transparente.
+Archivos: editar, eliminar, ver, usuarios, permisos, perfiles, departamentos, empleados y cargos.

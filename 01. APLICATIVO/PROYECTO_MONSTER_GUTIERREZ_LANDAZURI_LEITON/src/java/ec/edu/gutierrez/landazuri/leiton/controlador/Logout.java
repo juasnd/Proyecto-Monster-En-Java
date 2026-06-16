@@ -15,6 +15,19 @@ public class Logout extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        cerrarSesion(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        cerrarSesion(request, response);
+    }
+
+    private void cerrarSesion(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+
         HttpSession sesion = request.getSession(false);
 
         if (sesion != null) {

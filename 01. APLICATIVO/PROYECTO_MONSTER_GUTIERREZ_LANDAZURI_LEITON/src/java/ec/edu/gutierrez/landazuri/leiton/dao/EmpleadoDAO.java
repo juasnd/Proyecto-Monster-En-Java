@@ -18,6 +18,9 @@ public class EmpleadoDAO extends BaseDAO {
     private final PersonaDAO personaDAO = new PersonaDAO();
     private final FamiliarDAO familiarDAO = new FamiliarDAO();
     private final FormacionDAO formacionDAO = new FormacionDAO();
+    private final CodigoDAO codigoDAO = new CodigoDAO();
+    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+    private final AuditoriaDAO auditoriaDAO = new AuditoriaDAO();
 
     public List<Empleado> listarEmpleados() {
         List<Empleado> lista = new ArrayList<>();
@@ -111,6 +114,7 @@ public class EmpleadoDAO extends BaseDAO {
             con.setAutoCommit(false);
 
             try {
+                completarCodigosAutomaticos(con, empleado);
                 personaDAO.insertar(con, empleado.getPersona());
 
                 try (PreparedStatement ps = con.prepareStatement(sqlEmpleado)) {
@@ -125,12 +129,21 @@ public class EmpleadoDAO extends BaseDAO {
                         empleado.getPeempCodigo(),
                         empleado.getFormaciones());
 
+                usuarioDAO.crearUsuarioAutomaticoEmpleado(con, empleado.getPersona());
+                registrarAuditoriaCreacion(con, empleado);
+
                 con.commit();
                 return true;
             } catch (SQLException e) {
                 con.rollback();
                 throw e;
             }
+        }
+    }
+
+    public void generarCodigosAutomaticos(Empleado empleado) throws SQLException {
+        try (Connection con = obtenerConexion()) {
+            completarCodigosAutomaticos(con, empleado);
         }
     }
 
@@ -411,6 +424,27 @@ public class EmpleadoDAO extends BaseDAO {
         ps.setString(5, empleado.getPedPedepCodigo());
     }
 
+    private void completarCodigosAutomaticos(Connection con, Empleado empleado) throws SQLException {
+        if (empleado.getPersona() != null && vacio(empleado.getPersona().getPeperCodigo())) {
+            empleado.getPersona().setPeperCodigo(codigoDAO.generarCodigo(con, "PEPER_CODIGO"));
+        }
+
+        if (vacio(empleado.getPeempCodigo())) {
+            empleado.setPeempCodigo(codigoDAO.generarCodigo(con, "PEEMP_CODIGO"));
+        }
+    }
+
+    private void registrarAuditoriaCreacion(Connection con, Empleado empleado) {
+        ec.edu.gutierrez.landazuri.leiton.modelo.Auditoria auditoria =
+                new ec.edu.gutierrez.landazuri.leiton.modelo.Auditoria();
+        auditoria.setLogin("sistema");
+        auditoria.setTabla("PEEMP_EMPLEA");
+        auditoria.setAccion("CREAR");
+        auditoria.setDetalle("Empleado " + empleado.getPeempCodigo()
+                + " y usuario " + empleado.getPersona().getCedula() + " creados automaticamente.");
+        auditoriaDAO.registrar(con, auditoria);
+    }
+
     private boolean existePorSql(String sql, String parametro) {
         try (Connection con = obtenerConexion();
                 PreparedStatement ps = con.prepareStatement(sql)) {
@@ -443,5 +477,9 @@ public class EmpleadoDAO extends BaseDAO {
         }
 
         return 1;
+    }
+
+    private boolean vacio(String valor) {
+        return valor == null || valor.trim().isEmpty();
     }
 }

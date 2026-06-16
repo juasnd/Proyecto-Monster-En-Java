@@ -185,14 +185,6 @@ public class EmpleadoController extends HttpServlet {
             errores.add(errorFoto);
         }
 
-        if (empleadoDAO.existeEmpleado(empleado.getPeempCodigo())) {
-            errores.add("Ya existe un empleado con ese codigo.");
-        }
-
-        if (empleadoDAO.existePersona(empleado.getPersona().getPeperCodigo())) {
-            errores.add("Ya existe una persona con ese codigo.");
-        }
-
         if (!errores.isEmpty()) {
             volverAlFormulario(request, response, "nuevo", empleado, unirErrores(errores));
             return;
@@ -201,6 +193,20 @@ public class EmpleadoController extends HttpServlet {
         String fotoGuardada = null;
 
         try {
+            empleadoDAO.generarCodigosAutomaticos(empleado);
+
+            if (empleadoDAO.existeEmpleado(empleado.getPeempCodigo())) {
+                volverAlFormulario(request, response, "nuevo", empleado,
+                        "Ya existe un empleado con el codigo generado.");
+                return;
+            }
+
+            if (empleadoDAO.existePersona(empleado.getPersona().getPeperCodigo())) {
+                volverAlFormulario(request, response, "nuevo", empleado,
+                        "Ya existe una persona con el codigo generado.");
+                return;
+            }
+
             if (fotoSeleccionada(fotoPart)) {
                 fotoGuardada = guardarFoto(fotoPart, empleado.getPersona().getPeperCodigo());
                 empleado.getPersona().setFoto(fotoGuardada);
@@ -386,7 +392,8 @@ public class EmpleadoController extends HttpServlet {
                 familiar.setApellido(valorMapa(item, "apellido"));
                 familiar.setFechaNacimiento(valorMapa(item, "fechaNacimiento"));
                 familiar.setTelefono(valorMapa(item, "telefono"));
-                familiar.setCargaFamiliar(normalizarCargaFamiliar(valorMapa(item, "cargaFamiliar")));
+                String cargaFamiliar = normalizarCargaFamiliar(valorMapa(item, "cargaFamiliar"));
+                familiar.setCargaFamiliar(cargaFamiliar.isEmpty() ? "S" : cargaFamiliar);
                 familiar.setObservacion(valorMapa(item, "observacion"));
                 familiares.add(familiar);
             }
@@ -453,8 +460,6 @@ public class EmpleadoController extends HttpServlet {
                     prefijo + "la fecha de nacimiento es obligatoria."
             );
             validarObligatorio(errores, familiar.getTelefono(), prefijo + "el telefono es obligatorio.");
-            validarObligatorio(errores, familiar.getCargaFamiliar(), prefijo + "debe indicar si es carga familiar.");
-
             validarLongitud(errores, familiar.getNombre(), 30, prefijo + "los nombres no deben superar 30 caracteres.");
             validarLongitud(
                     errores,
@@ -585,15 +590,7 @@ public class EmpleadoController extends HttpServlet {
             return 0;
         }
 
-        int total = 0;
-
-        for (Familiar familiar : familiares) {
-            if (familiar != null && "S".equals(normalizarCargaFamiliar(familiar.getCargaFamiliar()))) {
-                total++;
-            }
-        }
-
-        return total;
+        return familiares.size();
     }
 
     private String normalizarCargaFamiliar(String valor) {
@@ -727,8 +724,10 @@ public class EmpleadoController extends HttpServlet {
         List<String> errores = new ArrayList<>();
         Persona persona = empleado.getPersona();
 
-        validarObligatorio(errores, persona.getPeperCodigo(), "El codigo de persona es obligatorio.");
-        validarObligatorio(errores, empleado.getPeempCodigo(), "El codigo de empleado es obligatorio.");
+        if (!nuevo) {
+            validarObligatorio(errores, persona.getPeperCodigo(), "El codigo de persona es obligatorio.");
+            validarObligatorio(errores, empleado.getPeempCodigo(), "El codigo de empleado es obligatorio.");
+        }
         validarObligatorio(errores, persona.getCedula(), "La cedula es obligatoria.");
         validarObligatorio(errores, persona.getNombres(), "Los nombres son obligatorios.");
         validarObligatorio(errores, persona.getApellidos(), "Los apellidos son obligatorios.");
@@ -739,8 +738,13 @@ public class EmpleadoController extends HttpServlet {
         validarObligatorio(errores, empleado.getPedepCodigo(), "Debe seleccionar el departamento.");
         validarObligatorio(errores, empleado.getPecarCodigo(), "Debe seleccionar el cargo.");
 
-        validarLongitud(errores, persona.getPeperCodigo(), 10, "El codigo de persona no debe superar 10 caracteres.");
-        validarLongitud(errores, empleado.getPeempCodigo(), 10, "El codigo de empleado no debe superar 10 caracteres.");
+        if (!nuevo || !persona.getPeperCodigo().isEmpty()) {
+            validarLongitud(errores, persona.getPeperCodigo(), 10, "El codigo de persona no debe superar 10 caracteres.");
+        }
+
+        if (!nuevo || !empleado.getPeempCodigo().isEmpty()) {
+            validarLongitud(errores, empleado.getPeempCodigo(), 10, "El codigo de empleado no debe superar 10 caracteres.");
+        }
         validarLongitud(
                 errores,
                 empleado.getPedepCodigo(),

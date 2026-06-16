@@ -1,9 +1,16 @@
 package ec.edu.gutierrez.landazuri.leiton.controlador;
 
+import ec.edu.gutierrez.landazuri.leiton.dao.UsuarioDAO;
+import ec.edu.gutierrez.landazuri.leiton.modelo.MenuOpcion;
+import ec.edu.gutierrez.landazuri.leiton.modelo.Perfil;
+import ec.edu.gutierrez.landazuri.leiton.modelo.Usuario;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -21,40 +28,87 @@ public class Controller extends HttpServlet {
         String nombreUsuario = request.getParameter("usuario");
         String password = request.getParameter("password");
 
-        BDController bdc = new BDController();
+        UsuarioDAO usuarioDAO = new UsuarioDAO();
+        Usuario usuario = usuarioDAO.buscarPorLogin(nombreUsuario);
 
-        if (!bdc.usuarioExiste(nombreUsuario)) {
+        if (usuario == null) {
             response.sendRedirect(request.getContextPath() + "/index.jsp?error=usuario_no_existe");
             return;
         }
 
-        if (bdc.usuarioBloqueado(nombreUsuario)) {
+        if (usuario.estaBloqueado()) {
             response.sendRedirect(request.getContextPath() + "/index.jsp?error=bloqueado");
             return;
         }
 
-        if (bdc.isRegistered(nombreUsuario, password)) {
+        if (!usuario.estaActivo()) {
+            response.sendRedirect(request.getContextPath() + "/index.jsp?error=inactivo");
+            return;
+        }
 
-            bdc.reiniciarIntentos(nombreUsuario);
+        if (usuarioDAO.validarPassword(usuario, password)) {
+
+            usuarioDAO.reiniciarIntentos(nombreUsuario);
+            usuarioDAO.actualizarUltimoAcceso(nombreUsuario);
+
+            List<MenuOpcion> menu = usuarioDAO.obtenerMenuUsuario(usuario);
+            Perfil perfil = usuario.getPerfil();
 
             HttpSession sesion = request.getSession();
             sesion.setAttribute("usuarioLogueado", nombreUsuario);
+            sesion.setAttribute("usuario", usuario);
+            sesion.setAttribute("perfilUsuario", perfil);
+            sesion.setAttribute("menuUsuario", menu);
+            sesion.setAttribute("permisosUsuario", construirPermisos(menu));
 
-            response.sendRedirect(request.getContextPath() + "/pagPrincipal.jsp");
+            if (perfil != null) {
+                sesion.setAttribute("perfilCodigo", perfil.getCodigo());
+                sesion.setAttribute("perfilNombre", perfil.getDescripcion());
+            }
+
+            if (usuario.requiereCambioClave()) {
+                response.sendRedirect(request.getContextPath() + "/cambiarClave.jsp");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/pagPrincipal.jsp");
+            }
 
         } else {
 
-            bdc.aumentarIntentosFallidos(nombreUsuario);
-
-            int intentos = bdc.obtenerIntentosFallidos(nombreUsuario);
+            int intentos = usuarioDAO.sumarIntentosFallidos(nombreUsuario);
 
             if (intentos >= 3) {
-                bdc.bloquearUsuario(nombreUsuario);
                 response.sendRedirect(request.getContextPath() + "/index.jsp?error=bloqueado");
             } else {
                 response.sendRedirect(request.getContextPath() + "/index.jsp?error=intentos&num=" + intentos);
             }
         }
+    }
+
+    private Set<String> construirPermisos(List<MenuOpcion> menu) {
+        Set<String> permisos = new HashSet<>();
+
+        if (menu == null) {
+            return permisos;
+        }
+
+        for (MenuOpcion opcion : menu) {
+            if (opcion != null && opcion.getUrl() != null && !opcion.getUrl().trim().isEmpty()) {
+                permisos.add(limpiarUrl(opcion.getUrl()));
+            }
+        }
+
+        return permisos;
+    }
+
+    private String limpiarUrl(String url) {
+        String limpia = url == null ? "" : url.trim();
+        int query = limpia.indexOf('?');
+
+        if (query >= 0) {
+            limpia = limpia.substring(0, query);
+        }
+
+        return limpia;
     }
 
     public static String getMD5(String password) {
