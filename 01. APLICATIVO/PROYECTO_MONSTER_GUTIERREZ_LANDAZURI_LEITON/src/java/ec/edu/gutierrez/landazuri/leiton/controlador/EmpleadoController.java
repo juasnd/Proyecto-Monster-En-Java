@@ -193,31 +193,18 @@ public class EmpleadoController extends HttpServlet {
         String fotoGuardada = null;
 
         try {
-            empleadoDAO.generarCodigosAutomaticos(empleado);
-
-            if (empleadoDAO.existeEmpleado(empleado.getPeempCodigo())) {
-                volverAlFormulario(request, response, "nuevo", empleado,
-                        "Ya existe un empleado con el codigo generado.");
-                return;
-            }
-
-            if (empleadoDAO.existePersona(empleado.getPersona().getPeperCodigo())) {
-                volverAlFormulario(request, response, "nuevo", empleado,
-                        "Ya existe una persona con el codigo generado.");
-                return;
-            }
-
             if (fotoSeleccionada(fotoPart)) {
-                fotoGuardada = guardarFoto(fotoPart, empleado.getPersona().getPeperCodigo());
+                fotoGuardada = guardarFoto(fotoPart, empleado.getPersona().getCedula());
                 empleado.getPersona().setFoto(fotoGuardada);
             }
 
             empleadoDAO.guardarEmpleado(empleado);
             response.sendRedirect(request.getContextPath() + "/EmpleadoController?mensaje=guardado");
         } catch (SQLException | IOException e) {
+            e.printStackTrace();
             eliminarFotoSiExiste(fotoGuardada);
             volverAlFormulario(request, response, "nuevo", empleado,
-                    "No se pudo guardar el empleado. Verifique las claves, relaciones y foto seleccionada.");
+                    mensajeErrorGuardarEmpleado(e));
         }
     }
 
@@ -831,6 +818,28 @@ public class EmpleadoController extends HttpServlet {
         request.setAttribute("error", error);
         cargarDatosBase(request);
         request.getRequestDispatcher("empleados.jsp").forward(request, response);
+    }
+
+    private String mensajeErrorGuardarEmpleado(Exception e) {
+        String detalle = e == null || e.getMessage() == null ? "" : e.getMessage();
+
+        if (detalle.contains("Ya existe una persona registrada con esta cédula.")) {
+            return "Ya existe una persona registrada con esta cédula.";
+        }
+
+        if (detalle.contains("Ya existe un usuario registrado con esta cédula.")) {
+            return "Ya existe un usuario registrado con esta cédula.";
+        }
+
+        if (detalle.contains("No existe el perfil EMPLEADO en la base de datos.")) {
+            return "No existe el perfil EMPLEADO en la base de datos.";
+        }
+
+        if (detalle.isEmpty()) {
+            return "No se pudo guardar el empleado. Revise los datos e intente nuevamente.";
+        }
+
+        return "No se pudo guardar el empleado. Detalle: " + detalle;
     }
 
     private void responderCargosPorDepartamento(HttpServletRequest request, HttpServletResponse response)

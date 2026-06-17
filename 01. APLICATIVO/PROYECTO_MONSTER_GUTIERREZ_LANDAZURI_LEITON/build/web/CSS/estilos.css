@@ -421,14 +421,14 @@ body {
 
 .topbar {
     width: 100%;
-    min-height: 88px;
-    padding: 16px 56px;
+    min-height: 82px;
+    padding: 10px 42px;
     background: rgba(16, 24, 32, 0.96);
     border-bottom: 1px solid rgba(53, 200, 244, 0.20);
     display: grid;
-    grid-template-columns: minmax(260px, auto) minmax(360px, 1fr) minmax(230px, auto);
+    grid-template-columns: minmax(230px, 0.9fr) minmax(420px, 1.35fr) minmax(230px, 0.9fr);
     align-items: center;
-    gap: 24px;
+    column-gap: 22px;
     backdrop-filter: blur(12px);
     position: sticky;
     top: 0;
@@ -438,12 +438,12 @@ body {
 .topbar-logo {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     min-width: 0;
 }
 
 .topbar-logo img {
-    width: 88px;
+    width: 68px;
     height: auto;
     object-fit: contain;
     filter:
@@ -453,14 +453,14 @@ body {
 
 .topbar-logo h1 {
     color: var(--blanco);
-    font-size: 28px;
+    font-size: 23px;
     margin-bottom: 2px;
-    letter-spacing: 0.5px;
+    letter-spacing: 0;
 }
 
 .topbar-logo span {
     color: var(--gris-texto);
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
 }
 
@@ -468,9 +468,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    column-gap: 12px;
-    row-gap: 8px;
-    flex-wrap: wrap;
+    gap: 8px;
+    flex-wrap: nowrap;
     min-width: 0;
 }
 
@@ -478,7 +477,7 @@ body {
     justify-self: center;
 }
 
-.topbar-menu a {
+.topbar .nav-link {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -487,17 +486,73 @@ body {
     font-size: 14px;
     font-weight: 800;
     line-height: 1.2;
-    padding: 9px 12px;
+    padding: 9px 11px;
     border-radius: 7px;
     border: 1px solid transparent;
+    background: transparent;
+    transition: var(--transicion);
+    white-space: nowrap;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.topbar .nav-link:hover,
+.nav-dropdown:focus-within .dropdown-toggle {
+    color: var(--blanco);
+    background: rgba(53, 200, 244, 0.12);
+    border-color: rgba(53, 200, 244, 0.16);
+}
+
+.nav-dropdown {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.dropdown-toggle span {
+    font-size: 11px;
+    margin-left: 6px;
+}
+
+.topbar .dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    min-width: 178px;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(53, 200, 244, 0.20);
+    background: rgba(16, 24, 32, 0.98);
+    box-shadow: 0 16px 35px rgba(0, 0, 0, 0.30);
+    transform: translateX(-50%);
+    z-index: 20;
+}
+
+.nav-dropdown:hover .dropdown-menu,
+.nav-dropdown:focus-within .dropdown-menu {
+    display: grid;
+    gap: 4px;
+}
+
+.topbar .dropdown-item {
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+    justify-content: flex-start;
+    padding: 10px 12px;
+    color: var(--gris-texto);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 800;
+    border-radius: 7px;
     transition: var(--transicion);
     white-space: nowrap;
 }
 
-.topbar-menu a:hover {
+.topbar .dropdown-item:hover {
     color: var(--blanco);
     background: rgba(53, 200, 244, 0.12);
-    border-color: rgba(53, 200, 244, 0.16);
 }
 
 .topbar-user {
@@ -505,7 +560,6 @@ body {
     align-items: center;
     justify-content: flex-end;
     gap: 12px;
-    justify-self: end;
     min-width: 0;
 }
 
@@ -940,6 +994,31 @@ body {
    RESPONSIVE
 ========================= */
 
+@media (max-width: 1100px) {
+    .topbar {
+        grid-template-columns: minmax(200px, 0.85fr) minmax(360px, 1.35fr) minmax(210px, 0.9fr);
+        column-gap: 14px;
+        padding: 10px 24px;
+    }
+
+    .topbar-logo img {
+        width: 60px;
+    }
+
+    .topbar-logo h1 {
+        font-size: 20px;
+    }
+
+    .topbar-logo span {
+        font-size: 11px;
+    }
+
+    .topbar .nav-link {
+        font-size: 13px;
+        padding: 8px 8px;
+    }
+}
+
 @media (max-width: 900px) {
     .login-panel {
         grid-template-columns: 1fr;
@@ -959,13 +1038,14 @@ body {
     }
 
     .topbar {
-        padding: 14px 24px;
         grid-template-columns: 1fr;
-        gap: 16px;
+        min-height: auto;
+        row-gap: 10px;
+        padding: 12px 20px;
     }
 
     .topbar-logo,
-    .topbar-menu-centro,
+    .topbar-menu,
     .topbar-user {
         justify-self: center;
     }
@@ -977,7 +1057,7 @@ body {
     }
 
     .topbar-user {
-        width: 100%;
+        width: auto;
         justify-content: center;
     }
 
@@ -1062,18 +1142,32 @@ body {
     }
 
     .topbar-logo img {
-        width: 88px;
+        width: 74px;
     }
 
     .topbar-menu {
         flex-direction: column;
     }
 
-    .topbar-menu a,
+    .topbar .nav-link,
+    .nav-dropdown,
     .topbar .btn-salir {
         width: 100%;
         text-align: center;
         justify-content: center;
+    }
+
+    .nav-dropdown {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .topbar .dropdown-menu {
+        position: static;
+        width: 100%;
+        min-width: 0;
+        margin-top: 8px;
+        transform: none;
     }
 
     .topbar-user {

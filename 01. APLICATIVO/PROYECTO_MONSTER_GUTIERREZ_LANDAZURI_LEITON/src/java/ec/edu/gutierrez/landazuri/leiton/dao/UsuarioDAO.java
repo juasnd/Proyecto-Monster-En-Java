@@ -213,13 +213,13 @@ public class UsuarioDAO extends BaseDAO {
         }
 
         if (existeLogin(con, persona.getCedula())) {
-            throw new SQLException("Ya existe un usuario con la cedula " + persona.getCedula() + ".");
+            throw new SQLException("Ya existe un usuario registrado con esta cédula.");
         }
 
         String perfilEmpleado = perfilDAO.buscarCodigoPorNombre(con, "EMPLEADO");
 
         if (vacio(perfilEmpleado)) {
-            throw new SQLException("No existe el perfil EMPLEADO.");
+            throw new SQLException("No existe el perfil EMPLEADO en la base de datos.");
         }
 
         Usuario usuario = new Usuario();
@@ -639,7 +639,7 @@ public class UsuarioDAO extends BaseDAO {
         return null;
     }
 
-    private boolean existeLogin(Connection con, String login) throws SQLException {
+    public boolean existeLogin(Connection con, String login) throws SQLException {
         String sql = "SELECT XEUSU_LOGIN FROM xeusu_usuari WHERE XEUSU_LOGIN = ?";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {

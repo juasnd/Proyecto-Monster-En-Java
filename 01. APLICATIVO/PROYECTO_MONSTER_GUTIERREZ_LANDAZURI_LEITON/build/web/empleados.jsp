@@ -495,23 +495,12 @@
                                 </p>
 
                                 <div class="identidad-campos">
-                                    <div class="grupo-campo">
-                                        <label for="codigoEmpleado">Código empleado</label>
-                                        <input
-                                            type="text"
-                                            id="codigoEmpleado"
-                                            name="codigoEmpleado"
-                                            maxlength="10"
-                                            value="<%= h(empleadoForm.getPeempCodigo()) %>"
-                                            placeholder="Se genera automaticamente"
-                                            <%= readonlyCodigo %>
-                                            <%= disabled %>
-                                        >
-                                        <small class="campo-ayuda">
-                                            El codigo se genera automaticamente al guardar.
-                                        </small>
-                                        <small class="field-error-message" data-error-for="codigoEmpleado"></small>
-                                    </div>
+                                    <input
+                                        type="hidden"
+                                        id="codigoEmpleado"
+                                        name="codigoEmpleado"
+                                        value="<%= h(empleadoForm.getPeempCodigo()) %>"
+                                    >
 
                                     <div class="grupo-campo">
                                         <label for="nombres">Nombres</label>

@@ -114,6 +114,7 @@ public class EmpleadoDAO extends BaseDAO {
             con.setAutoCommit(false);
 
             try {
+                validarDatosPreviosNuevo(con, empleado);
                 completarCodigosAutomaticos(con, empleado);
                 personaDAO.insertar(con, empleado.getPersona());
 
@@ -405,15 +406,7 @@ public class EmpleadoDAO extends BaseDAO {
             return 0;
         }
 
-        int total = 0;
-
-        for (Familiar familiar : familiares) {
-            if (familiar != null && "S".equalsIgnoreCase(familiar.getCargaFamiliar())) {
-                total++;
-            }
-        }
-
-        return total;
+        return familiares.size();
     }
 
     private void cargarParametrosEmpleado(PreparedStatement ps, Empleado empleado) throws SQLException {
@@ -431,6 +424,34 @@ public class EmpleadoDAO extends BaseDAO {
 
         if (vacio(empleado.getPeempCodigo())) {
             empleado.setPeempCodigo(codigoDAO.generarCodigo(con, "PEEMP_CODIGO"));
+        }
+    }
+
+    private void validarDatosPreviosNuevo(Connection con, Empleado empleado) throws SQLException {
+        if (empleado == null || empleado.getPersona() == null) {
+            throw new SQLException("No se recibieron los datos personales del empleado.");
+        }
+
+        String cedula = empleado.getPersona().getCedula();
+
+        if (!vacio(cedula) && existeCedula(con, cedula)) {
+            throw new SQLException("Ya existe una persona registrada con esta cédula.");
+        }
+
+        if (!vacio(cedula) && usuarioDAO.existeLogin(con, cedula)) {
+            throw new SQLException("Ya existe un usuario registrado con esta cédula.");
+        }
+    }
+
+    private boolean existeCedula(Connection con, String cedula) throws SQLException {
+        String sql = "SELECT PEPER_CODIGO FROM peper_person WHERE PEPER_CEDULA = ?";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, cedula);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
         }
     }
 

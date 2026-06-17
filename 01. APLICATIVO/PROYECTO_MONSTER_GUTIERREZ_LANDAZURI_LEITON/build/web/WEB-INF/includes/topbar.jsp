@@ -29,6 +29,26 @@
         return "pagprincipal.jsp".equals(ruta);
     }
 
+    private boolean topbarEsAdministracion(MenuOpcion opcion) {
+        if (opcion == null) {
+            return false;
+        }
+
+        String codigo = opcion.getCodigo() == null ? "" : opcion.getCodigo().trim().toUpperCase();
+
+        if ("USU".equals(codigo) || "PER".equals(codigo) || "OCP".equals(codigo) || "OPC".equals(codigo)) {
+            return true;
+        }
+
+        String ruta = topbarNormalizarRuta(opcion.getUrl());
+        return "usuarios.jsp".equals(ruta)
+                || "usuariocontroller".equals(ruta)
+                || "perfiles.jsp".equals(ruta)
+                || "perfilcontroller".equals(ruta)
+                || "permisos.jsp".equals(ruta)
+                || "permisocontroller".equals(ruta);
+    }
+
     private boolean topbarModuloPermitido(MenuOpcion opcion) {
         if (opcion == null) {
             return false;
@@ -122,6 +142,19 @@
     Object topbarPerfilObj = session.getAttribute("perfilNombre");
     String topbarUsuario = topbarUsuarioObj == null ? "" : String.valueOf(topbarUsuarioObj);
     String topbarPerfil = topbarPerfilObj == null ? "" : String.valueOf(topbarPerfilObj);
+    boolean topbarTieneAdmin = false;
+
+    if (topbarMenu != null) {
+        for (MenuOpcion opcion : topbarMenu) {
+            if (topbarTieneUrl(opcion)
+                    && !topbarEsInicio(opcion)
+                    && topbarModuloPermitido(opcion)
+                    && topbarEsAdministracion(opcion)) {
+                topbarTieneAdmin = true;
+                break;
+            }
+        }
+    }
 %>
 
 <header class="topbar topbar-dinamica">
@@ -133,21 +166,45 @@
 
         <div>
             <h1>Master Monster</h1>
-            <span>Sistema de gestion de proyectos</span>
+            <span>Sistema de gesti&oacute;n de proyectos</span>
         </div>
     </div>
 
     <nav class="topbar-menu topbar-menu-centro">
-        <a href="${pageContext.request.contextPath}/pagPrincipal.jsp">Inicio</a>
+        <a class="nav-link" href="${pageContext.request.contextPath}/pagPrincipal.jsp">Inicio</a>
         <% if (topbarMenu != null) {
             for (MenuOpcion opcion : topbarMenu) {
-                if (topbarTieneUrl(opcion) && !topbarEsInicio(opcion) && topbarModuloPermitido(opcion)) { %>
-                    <a href="${pageContext.request.contextPath}/<%= topbarH(topbarRuta(opcion)) %>">
+                if (topbarTieneUrl(opcion)
+                        && !topbarEsInicio(opcion)
+                        && topbarModuloPermitido(opcion)
+                        && !topbarEsAdministracion(opcion)) { %>
+                    <a class="nav-link" href="${pageContext.request.contextPath}/<%= topbarH(topbarRuta(opcion)) %>">
                         <%= topbarH(opcion.getDescripcion()) %>
                     </a>
         <%      }
             }
            } %>
+
+        <% if (topbarTieneAdmin) { %>
+            <div class="nav-dropdown">
+                <button type="button" class="nav-link dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+                    Administraci&oacute;n <span aria-hidden="true">&#9662;</span>
+                </button>
+
+                <div class="dropdown-menu">
+                    <% for (MenuOpcion opcion : topbarMenu) {
+                        if (topbarTieneUrl(opcion)
+                                && !topbarEsInicio(opcion)
+                                && topbarModuloPermitido(opcion)
+                                && topbarEsAdministracion(opcion)) { %>
+                            <a class="dropdown-item" href="${pageContext.request.contextPath}/<%= topbarH(topbarRuta(opcion)) %>">
+                                <%= topbarH(opcion.getDescripcion()) %>
+                            </a>
+                    <%  }
+                       } %>
+                </div>
+            </div>
+        <% } %>
     </nav>
 
     <div class="topbar-user">
