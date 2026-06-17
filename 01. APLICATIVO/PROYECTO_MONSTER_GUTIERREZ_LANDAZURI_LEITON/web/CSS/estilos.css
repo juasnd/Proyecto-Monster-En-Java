@@ -421,14 +421,14 @@ body {
 
 .topbar {
     width: 100%;
-    min-height: 82px;
-    padding: 10px 42px;
+    min-height: 88px;
+    padding: 16px 56px;
     background: rgba(16, 24, 32, 0.96);
     border-bottom: 1px solid rgba(53, 200, 244, 0.20);
     display: grid;
-    grid-template-columns: minmax(230px, 0.9fr) minmax(420px, 1.35fr) minmax(230px, 0.9fr);
+    grid-template-columns: minmax(260px, auto) minmax(360px, 1fr) minmax(230px, auto);
     align-items: center;
-    column-gap: 22px;
+    gap: 24px;
     backdrop-filter: blur(12px);
     position: sticky;
     top: 0;
@@ -438,12 +438,12 @@ body {
 .topbar-logo {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
     min-width: 0;
 }
 
 .topbar-logo img {
-    width: 68px;
+    width: 88px;
     height: auto;
     object-fit: contain;
     filter:
@@ -453,14 +453,14 @@ body {
 
 .topbar-logo h1 {
     color: var(--blanco);
-    font-size: 23px;
+    font-size: 28px;
     margin-bottom: 2px;
-    letter-spacing: 0;
+    letter-spacing: 0.5px;
 }
 
 .topbar-logo span {
     color: var(--gris-texto);
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
 }
 
@@ -468,8 +468,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    flex-wrap: nowrap;
+    column-gap: 12px;
+    row-gap: 8px;
+    flex-wrap: wrap;
     min-width: 0;
 }
 
@@ -477,7 +478,7 @@ body {
     justify-self: center;
 }
 
-.topbar .nav-link {
+.topbar-menu a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -486,73 +487,17 @@ body {
     font-size: 14px;
     font-weight: 800;
     line-height: 1.2;
-    padding: 9px 11px;
+    padding: 9px 12px;
     border-radius: 7px;
     border: 1px solid transparent;
-    background: transparent;
     transition: var(--transicion);
     white-space: nowrap;
-    cursor: pointer;
-    font-family: inherit;
 }
 
-.topbar .nav-link:hover,
-.nav-dropdown:focus-within .dropdown-toggle {
+.topbar-menu a:hover {
     color: var(--blanco);
     background: rgba(53, 200, 244, 0.12);
     border-color: rgba(53, 200, 244, 0.16);
-}
-
-.nav-dropdown {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-}
-
-.dropdown-toggle span {
-    font-size: 11px;
-    margin-left: 6px;
-}
-
-.topbar .dropdown-menu {
-    display: none;
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 50%;
-    min-width: 178px;
-    padding: 8px;
-    border-radius: 8px;
-    border: 1px solid rgba(53, 200, 244, 0.20);
-    background: rgba(16, 24, 32, 0.98);
-    box-shadow: 0 16px 35px rgba(0, 0, 0, 0.30);
-    transform: translateX(-50%);
-    z-index: 20;
-}
-
-.nav-dropdown:hover .dropdown-menu,
-.nav-dropdown:focus-within .dropdown-menu {
-    display: grid;
-    gap: 4px;
-}
-
-.topbar .dropdown-item {
-    display: inline-flex;
-    align-items: center;
-    width: 100%;
-    justify-content: flex-start;
-    padding: 10px 12px;
-    color: var(--gris-texto);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 800;
-    border-radius: 7px;
-    transition: var(--transicion);
-    white-space: nowrap;
-}
-
-.topbar .dropdown-item:hover {
-    color: var(--blanco);
-    background: rgba(53, 200, 244, 0.12);
 }
 
 .topbar-user {
@@ -560,6 +505,7 @@ body {
     align-items: center;
     justify-content: flex-end;
     gap: 12px;
+    justify-self: end;
     min-width: 0;
 }
 
@@ -994,31 +940,6 @@ body {
    RESPONSIVE
 ========================= */
 
-@media (max-width: 1100px) {
-    .topbar {
-        grid-template-columns: minmax(200px, 0.85fr) minmax(360px, 1.35fr) minmax(210px, 0.9fr);
-        column-gap: 14px;
-        padding: 10px 24px;
-    }
-
-    .topbar-logo img {
-        width: 60px;
-    }
-
-    .topbar-logo h1 {
-        font-size: 20px;
-    }
-
-    .topbar-logo span {
-        font-size: 11px;
-    }
-
-    .topbar .nav-link {
-        font-size: 13px;
-        padding: 8px 8px;
-    }
-}
-
 @media (max-width: 900px) {
     .login-panel {
         grid-template-columns: 1fr;
@@ -1038,14 +959,13 @@ body {
     }
 
     .topbar {
+        padding: 14px 24px;
         grid-template-columns: 1fr;
-        min-height: auto;
-        row-gap: 10px;
-        padding: 12px 20px;
+        gap: 16px;
     }
 
     .topbar-logo,
-    .topbar-menu,
+    .topbar-menu-centro,
     .topbar-user {
         justify-self: center;
     }
@@ -1057,7 +977,7 @@ body {
     }
 
     .topbar-user {
-        width: auto;
+        width: 100%;
         justify-content: center;
     }
 
@@ -1142,32 +1062,18 @@ body {
     }
 
     .topbar-logo img {
-        width: 74px;
+        width: 88px;
     }
 
     .topbar-menu {
         flex-direction: column;
     }
 
-    .topbar .nav-link,
-    .nav-dropdown,
+    .topbar-menu a,
     .topbar .btn-salir {
         width: 100%;
         text-align: center;
         justify-content: center;
-    }
-
-    .nav-dropdown {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .topbar .dropdown-menu {
-        position: static;
-        width: 100%;
-        min-width: 0;
-        margin-top: 8px;
-        transform: none;
     }
 
     .topbar-user {
@@ -2960,3 +2866,407 @@ body.empleado-form-modal-abierto {
     font-weight: 800;
     margin-left: 6px;
 }
+
+/* =========================================================
+   TOPBAR MONSTER LIMPIA - VERSION UNIFORME
+   Reemplaza los estilos anteriores de la barra superior.
+   Objetivo: que Administración se vea como una opción normal.
+========================================================= */
+
+.topbar.topbar-monster-clean {
+    width: 100%;
+    min-height: 84px;
+    padding: 12px clamp(22px, 4vw, 56px);
+    background: rgba(16, 24, 32, 0.98);
+    border-bottom: 1px solid rgba(53, 200, 244, 0.14);
+    display: grid;
+    grid-template-columns: minmax(300px, 390px) minmax(460px, 1fr) auto;
+    align-items: center;
+    column-gap: clamp(18px, 2.6vw, 42px);
+    row-gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
+}
+
+/* Marca */
+.topbar-monster-clean .topbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 0;
+    text-decoration: none;
+    justify-self: start;
+}
+
+.topbar-monster-clean .topbar-logo img {
+    width: 72px;
+    height: auto;
+    object-fit: contain;
+    flex: 0 0 auto;
+    filter:
+        drop-shadow(0 5px 12px rgba(0, 0, 0, 0.42))
+        drop-shadow(0 0 10px rgba(53, 200, 244, 0.18));
+}
+
+.topbar-monster-clean .topbar-brand-text {
+    min-width: 0;
+}
+
+.topbar-monster-clean .topbar-logo h1 {
+    color: var(--blanco);
+    font-size: clamp(24px, 2vw, 30px);
+    line-height: 1.05;
+    margin: 0 0 5px;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+}
+
+.topbar-monster-clean .topbar-logo span {
+    display: block;
+    color: var(--gris-texto);
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+/* Navegación principal */
+.topbar-monster-clean .topbar-nav,
+.topbar-monster-clean .topbar-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(14px, 1.7vw, 30px);
+    min-width: 0;
+    justify-self: center;
+    flex-wrap: nowrap;
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+/* Opciones normales del menú */
+.topbar-monster-clean .topbar-link,
+.topbar-monster-clean .topbar-dropdown-toggle,
+.topbar-monster-clean .nav-dropdown .dropdown-toggle,
+.topbar-monster-clean .dropdown-toggle {
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0;
+    color: var(--gris-texto);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: color 0.18s ease, transform 0.18s ease;
+}
+
+/* Hover uniforme: sin cajas ni bordes */
+.topbar-monster-clean .topbar-link:hover,
+.topbar-monster-clean .topbar-link:focus-visible,
+.topbar-monster-clean .topbar-dropdown:hover .topbar-dropdown-toggle,
+.topbar-monster-clean .topbar-dropdown:focus-within .topbar-dropdown-toggle,
+.topbar-monster-clean .nav-dropdown:hover .dropdown-toggle,
+.topbar-monster-clean .nav-dropdown:focus-within .dropdown-toggle,
+.topbar-monster-clean .dropdown-toggle:hover,
+.topbar-monster-clean .dropdown-toggle:focus-visible {
+    color: var(--blanco);
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none;
+    transform: translateY(-1px);
+}
+
+/* Línea sutil debajo al pasar el mouse */
+.topbar-monster-clean .topbar-link::after,
+.topbar-monster-clean .topbar-dropdown-toggle::after,
+.topbar-monster-clean .nav-dropdown .dropdown-toggle::after,
+.topbar-monster-clean .dropdown-toggle::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -5px;
+    height: 2px;
+    border-radius: 99px;
+    background: rgba(53, 200, 244, 0.85);
+    opacity: 0;
+    transform: scaleX(0.65);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.topbar-monster-clean .topbar-link,
+.topbar-monster-clean .topbar-dropdown-toggle,
+.topbar-monster-clean .nav-dropdown .dropdown-toggle,
+.topbar-monster-clean .dropdown-toggle {
+    position: relative;
+}
+
+.topbar-monster-clean .topbar-link:hover::after,
+.topbar-monster-clean .topbar-link:focus-visible::after,
+.topbar-monster-clean .topbar-dropdown:hover .topbar-dropdown-toggle::after,
+.topbar-monster-clean .topbar-dropdown:focus-within .topbar-dropdown-toggle::after,
+.topbar-monster-clean .nav-dropdown:hover .dropdown-toggle::after,
+.topbar-monster-clean .nav-dropdown:focus-within .dropdown-toggle::after,
+.topbar-monster-clean .dropdown-toggle:hover::after,
+.topbar-monster-clean .dropdown-toggle:focus-visible::after {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+/* Dropdown */
+.topbar-monster-clean .topbar-dropdown,
+.topbar-monster-clean .nav-dropdown {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.topbar-monster-clean .topbar-dropdown-toggle span {
+    font-size: 10px;
+    opacity: 0.85;
+    transform: translateY(1px);
+}
+
+/* Panel desplegable: compacto y sin borde visible */
+.topbar-monster-clean .topbar-dropdown-menu,
+.topbar-monster-clean .dropdown-menu {
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 12px);
+    min-width: 170px;
+    padding: 8px;
+    border-radius: 14px;
+    background: rgba(17, 25, 34, 0.98);
+    border: none !important;
+    box-shadow: 0 18px 38px rgba(0, 0, 0, 0.34);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-50%) translateY(-6px);
+    pointer-events: none;
+    z-index: 200;
+    transition: opacity 0.18s ease, visibility 0.18s ease, transform 0.18s ease;
+}
+
+.topbar-monster-clean .topbar-dropdown:hover .topbar-dropdown-menu,
+.topbar-monster-clean .topbar-dropdown:focus-within .topbar-dropdown-menu,
+.topbar-monster-clean .nav-dropdown:hover .dropdown-menu,
+.topbar-monster-clean .nav-dropdown:focus-within .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+}
+
+/* Opciones internas del dropdown */
+.topbar-monster-clean .topbar-dropdown-menu a,
+.topbar-monster-clean .dropdown-menu a {
+    min-height: 38px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 12px;
+    border-radius: 10px;
+    color: var(--gris-texto);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.1;
+    white-space: nowrap;
+    background: transparent;
+    border: none;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.topbar-monster-clean .topbar-dropdown-menu a:hover,
+.topbar-monster-clean .topbar-dropdown-menu a:focus-visible,
+.topbar-monster-clean .dropdown-menu a:hover,
+.topbar-monster-clean .dropdown-menu a:focus-visible {
+    color: var(--blanco);
+    background: rgba(53, 200, 244, 0.12);
+    outline: none;
+    transform: translateX(2px);
+}
+
+/* Usuario */
+.topbar-monster-clean .topbar-user {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    min-width: 220px;
+    justify-self: end;
+}
+
+.topbar-monster-clean .topbar-user-info {
+    min-width: 0;
+    text-align: right;
+    padding-right: 2px;
+}
+
+.topbar-monster-clean .topbar-user-info strong,
+.topbar-monster-clean .topbar-user-info span {
+    display: block;
+    max-width: 135px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.topbar-monster-clean .topbar-user-info strong {
+    color: var(--blanco);
+    font-size: 14px;
+    font-weight: 850;
+    line-height: 1.1;
+}
+
+.topbar-monster-clean .topbar-user-info span {
+    color: var(--gris-texto);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-top: 3px;
+}
+
+.topbar-monster-clean .btn-salir {
+    min-height: 39px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--blanco);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 850;
+    line-height: 1;
+    padding: 0 15px;
+    border-radius: 11px;
+    background: linear-gradient(90deg, rgba(52, 93, 124, 0.95), rgba(111, 149, 173, 0.90));
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    white-space: nowrap;
+}
+
+.topbar-monster-clean .btn-salir:hover,
+.topbar-monster-clean .btn-salir:focus-visible {
+    background: linear-gradient(90deg, #3f6289, var(--btn-secundario-hover));
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.22);
+    transform: translateY(-1px);
+    outline: none;
+}
+
+/* Tablet: dos filas ordenadas */
+@media (max-width: 1180px) {
+    .topbar.topbar-monster-clean {
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "brand user"
+            "nav nav";
+        gap: 12px 20px;
+        padding: 13px 24px;
+    }
+
+    .topbar-monster-clean .topbar-logo {
+        grid-area: brand;
+    }
+
+    .topbar-monster-clean .topbar-nav,
+    .topbar-monster-clean .topbar-menu {
+        grid-area: nav;
+        justify-self: center;
+        max-width: 100%;
+        flex-wrap: wrap;
+        row-gap: 10px;
+    }
+
+    .topbar-monster-clean .topbar-user {
+        grid-area: user;
+    }
+}
+
+/* Móvil */
+@media (max-width: 720px) {
+    .topbar.topbar-monster-clean {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "brand"
+            "user"
+            "nav";
+        justify-items: center;
+        padding: 14px 16px;
+    }
+
+    .topbar-monster-clean .topbar-logo {
+        justify-self: center;
+    }
+
+    .topbar-monster-clean .topbar-logo img {
+        width: 68px;
+    }
+
+    .topbar-monster-clean .topbar-logo h1,
+    .topbar-monster-clean .topbar-logo span {
+        white-space: normal;
+        text-align: center;
+    }
+
+    .topbar-monster-clean .topbar-user {
+        min-width: 0;
+        justify-self: center;
+    }
+
+    .topbar-monster-clean .topbar-user-info {
+        text-align: center;
+    }
+
+    .topbar-monster-clean .topbar-nav,
+    .topbar-monster-clean .topbar-menu {
+        width: 100%;
+        justify-content: center;
+        gap: 14px 18px;
+    }
+}
+
+@media (max-width: 520px) {
+    .topbar-monster-clean .topbar-logo {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
+
+    .topbar-monster-clean .topbar-link,
+    .topbar-monster-clean .topbar-dropdown-toggle,
+    .topbar-monster-clean .nav-dropdown .dropdown-toggle,
+    .topbar-monster-clean .dropdown-toggle {
+        height: 36px;
+        font-size: 13px;
+    }
+
+    .topbar-monster-clean .topbar-dropdown-menu,
+    .topbar-monster-clean .dropdown-menu {
+        left: 50%;
+        right: auto;
+        min-width: 160px;
+    }
+
+    .topbar-monster-clean .topbar-user {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
