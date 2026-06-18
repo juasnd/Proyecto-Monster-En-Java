@@ -116,6 +116,7 @@ public class EmpleadoDAO extends BaseDAO {
             try {
                 validarDatosPreviosNuevo(con, empleado);
                 completarCodigosAutomaticos(con, empleado);
+                empleado.getPersona().setTipo("EMP");
                 personaDAO.insertar(con, empleado.getPersona());
 
                 try (PreparedStatement ps = con.prepareStatement(sqlEmpleado)) {

@@ -3,6 +3,8 @@ package ec.edu.gutierrez.landazuri.leiton.modelo;
 public class Persona {
 
     private String peperCodigo;
+    private String tipo;
+    private String tipoDescripcion;
     private String pesexCodigo;
     private String peescCodigo;
     private String nombres;
@@ -17,6 +19,8 @@ public class Persona {
     private String foto;
     private String sexoDescripcion;
     private String estadoCivilDescripcion;
+    private String esEmpleado;
+    private String codigoEmpleado;
 
     public Persona() {
     }
@@ -27,6 +31,22 @@ public class Persona {
 
     public void setPeperCodigo(String peperCodigo) {
         this.peperCodigo = peperCodigo;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public String getTipoDescripcion() {
+        return tipoDescripcion;
+    }
+
+    public void setTipoDescripcion(String tipoDescripcion) {
+        this.tipoDescripcion = tipoDescripcion;
     }
 
     public String getPesexCodigo() {
@@ -139,5 +159,21 @@ public class Persona {
 
     public void setEstadoCivilDescripcion(String estadoCivilDescripcion) {
         this.estadoCivilDescripcion = estadoCivilDescripcion;
+    }
+
+    public String getEsEmpleado() {
+        return esEmpleado;
+    }
+
+    public void setEsEmpleado(String esEmpleado) {
+        this.esEmpleado = esEmpleado;
+    }
+
+    public String getCodigoEmpleado() {
+        return codigoEmpleado;
+    }
+
+    public void setCodigoEmpleado(String codigoEmpleado) {
+        this.codigoEmpleado = codigoEmpleado;
     }
 }

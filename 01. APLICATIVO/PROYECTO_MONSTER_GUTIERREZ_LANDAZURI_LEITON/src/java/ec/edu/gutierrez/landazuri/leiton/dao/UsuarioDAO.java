@@ -10,11 +10,11 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -29,6 +29,8 @@ public class UsuarioDAO extends BaseDAO {
     private static final int MAX_INTENTOS = 3;
 
     private final PerfilDAO perfilDAO = new PerfilDAO();
+    private final PersonaDAO personaDAO = new PersonaDAO();
+    private final CodigoDAO codigoDAO = new CodigoDAO();
 
     public Usuario buscarPorLogin(String login) {
         String sql = "SELECT * FROM xeusu_usuari WHERE XEUSU_LOGIN = ?";
@@ -84,7 +86,7 @@ public class UsuarioDAO extends BaseDAO {
 
     private List<UsuarioPerfil> listarUsuariosDesdeVista() {
         List<UsuarioPerfil> usuarios = new ArrayList<>();
-        String sql = "SELECT * FROM vw_usuarios_perfiles";
+        String sql = "SELECT * FROM vw_usuarios_perfiles ORDER BY XEUSU_LOGIN";
 
         try (Connection con = obtenerConexion();
                 PreparedStatement ps = con.prepareStatement(sql);
@@ -104,10 +106,12 @@ public class UsuarioDAO extends BaseDAO {
         List<UsuarioPerfil> usuarios = new ArrayList<>();
         String sql = "SELECT u.XEUSU_LOGIN, u.PEPER_CODIGO, u.XEUSU_INTENTOS, "
                 + "u.XEUSU_CAMBIO_CLAVE, u.XEUSU_ULTIMO_ACCESO, u.XEEST_CODIGO, e.XEEST_DESCRI, "
-                + "p.PEPER_CEDULA, p.PEPER_NOMBRE, p.PEPER_APELLIDO, "
-                + "pe.XEPER_CODIGO, pe.XEPER_DESCRI "
+                + "p.PEPER_TIPO, p.PEPER_CEDULA, p.PEPER_NOMBRE, p.PEPER_APELLIDO, "
+                + "CASE WHEN emp.PEEMP_CODIGO IS NULL THEN 'N' ELSE 'S' END AS ES_EMPLEADO, "
+                + "emp.PEEMP_CODIGO, pe.XEPER_CODIGO, pe.XEPER_DESCRI "
                 + "FROM xeusu_usuari u "
                 + "LEFT JOIN peper_person p ON u.PEPER_CODIGO = p.PEPER_CODIGO "
+                + "LEFT JOIN peemp_emplea emp ON p.PEPER_CODIGO = emp.PEPER_CODIGO "
                 + "LEFT JOIN xeest_estado e ON u.XEEST_CODIGO = e.XEEST_CODIGO "
                 + "LEFT JOIN xeuxp_usuper up ON u.PEPER_CODIGO = up.PEPER_CODIGO "
                 + "AND u.XEUSU_LOGIN = up.XEUSU_LOGIN AND up.XEUXP_FECRET IS NULL "
@@ -128,19 +132,23 @@ public class UsuarioDAO extends BaseDAO {
         return usuarios;
     }
 
-    public List<Persona> listarEmpleadosSinUsuario() {
-        List<Persona> personas = listarEmpleadosSinUsuarioDesdeVista();
+    public List<Persona> listarPersonasSinUsuario() {
+        List<Persona> personas = listarPersonasSinUsuarioDesdeVista();
 
         if (!personas.isEmpty()) {
             return personas;
         }
 
-        return listarEmpleadosSinUsuarioFallback();
+        return listarPersonasSinUsuarioFallback();
     }
 
-    private List<Persona> listarEmpleadosSinUsuarioDesdeVista() {
+    public List<Persona> listarEmpleadosSinUsuario() {
+        return listarPersonasSinUsuario();
+    }
+
+    private List<Persona> listarPersonasSinUsuarioDesdeVista() {
         List<Persona> personas = new ArrayList<>();
-        String sql = "SELECT * FROM vw_empleados_sin_usuario";
+        String sql = "SELECT * FROM vw_personas_sin_usuario ORDER BY PEPER_APELLIDO, PEPER_NOMBRE";
 
         try (Connection con = obtenerConexion();
                 PreparedStatement ps = con.prepareStatement(sql);
@@ -150,20 +158,19 @@ public class UsuarioDAO extends BaseDAO {
                 personas.add(mapearPersonaBasica(rs));
             }
         } catch (SQLException e) {
-            System.out.println("No se pudo usar vw_empleados_sin_usuario: " + e.getMessage());
+            System.out.println("No se pudo usar vw_personas_sin_usuario: " + e.getMessage());
         }
 
         return personas;
     }
 
-    private List<Persona> listarEmpleadosSinUsuarioFallback() {
+    private List<Persona> listarPersonasSinUsuarioFallback() {
         List<Persona> personas = new ArrayList<>();
-        String sql = "SELECT p.PEPER_CODIGO, p.PEPER_CEDULA, p.PEPER_NOMBRE, p.PEPER_APELLIDO "
-                + "FROM peemp_emplea em "
-                + "INNER JOIN peper_person p ON em.PEPER_CODIGO = p.PEPER_CODIGO "
-                + "WHERE NOT EXISTS ("
-                + "SELECT 1 FROM xeusu_usuari u WHERE u.PEPER_CODIGO = p.PEPER_CODIGO"
-                + ") "
+        String sql = "SELECT p.PEPER_CODIGO, p.PEPER_TIPO, p.PEPER_CEDULA, p.PEPER_NOMBRE, p.PEPER_APELLIDO, "
+                + "CASE WHEN emp.PEEMP_CODIGO IS NULL THEN 'N' ELSE 'S' END AS ES_EMPLEADO, emp.PEEMP_CODIGO "
+                + "FROM peper_person p "
+                + "LEFT JOIN peemp_emplea emp ON p.PEPER_CODIGO = emp.PEPER_CODIGO "
+                + "WHERE NOT EXISTS (SELECT 1 FROM xeusu_usuari u WHERE u.PEPER_CODIGO = p.PEPER_CODIGO) "
                 + "ORDER BY p.PEPER_APELLIDO, p.PEPER_NOMBRE";
 
         try (Connection con = obtenerConexion();
@@ -174,25 +181,27 @@ public class UsuarioDAO extends BaseDAO {
                 personas.add(mapearPersonaBasica(rs));
             }
         } catch (SQLException e) {
-            System.out.println("Error al listar empleados sin usuario: " + e.getMessage());
+            System.out.println("Error al listar personas sin usuario: " + e.getMessage());
         }
 
         return personas;
     }
 
-    public boolean registrarUsuarioParaPersona(String personaCodigo, String login, String perfilCodigo) {
+    public boolean registrarUsuarioParaPersona(String personaCodigo, String login, String perfilCodigo) throws SQLException {
         try (Connection con = obtenerConexion()) {
             con.setAutoCommit(false);
 
             try {
-                Usuario usuario = new Usuario();
-                usuario.setCodigoPersona(personaCodigo);
-                usuario.setUsuario(login);
-                usuario.setPassword(hash(CONTRASENA_TEMPORAL, "MD5"));
-                usuario.setIntentosFallidos(0);
-                usuario.setCambioClave("S");
-                usuario.setEstadoCodigo("A");
+                Persona persona = buscarPersonaBasica(con, personaCodigo);
 
+                if (persona == null) {
+                    throw new SQLException("No se encontro la persona seleccionada.");
+                }
+
+                String loginFinal = normalizarLogin(login, persona);
+                validarUsuarioNuevo(con, persona, loginFinal, perfilCodigo, false);
+
+                Usuario usuario = crearUsuarioBase(persona.getPeperCodigo(), loginFinal);
                 registrarUsuario(con, usuario, perfilCodigo);
                 con.commit();
                 return true;
@@ -200,11 +209,28 @@ public class UsuarioDAO extends BaseDAO {
                 con.rollback();
                 throw e;
             }
-        } catch (SQLException e) {
-            System.out.println("Error al registrar usuario: " + e.getMessage());
         }
+    }
 
-        return false;
+    public boolean crearUsuarioExterno(Persona persona, String login, String perfilCodigo) throws SQLException {
+        try (Connection con = obtenerConexion()) {
+            con.setAutoCommit(false);
+
+            try {
+                prepararPersonaExterna(con, persona);
+                String loginFinal = normalizarLogin(login, persona);
+                validarUsuarioNuevo(con, persona, loginFinal, perfilCodigo, true);
+
+                personaDAO.insertar(con, persona);
+                Usuario usuario = crearUsuarioBase(persona.getPeperCodigo(), loginFinal);
+                registrarUsuario(con, usuario, perfilCodigo);
+                con.commit();
+                return true;
+            } catch (SQLException e) {
+                con.rollback();
+                throw e;
+            }
+        }
     }
 
     public void crearUsuarioAutomaticoEmpleado(Connection con, Persona persona) throws SQLException {
@@ -222,13 +248,8 @@ public class UsuarioDAO extends BaseDAO {
             throw new SQLException("No existe el perfil EMPLEADO en la base de datos.");
         }
 
-        Usuario usuario = new Usuario();
-        usuario.setCodigoPersona(persona.getPeperCodigo());
-        usuario.setUsuario(persona.getCedula());
-        usuario.setPassword(hash(CONTRASENA_TEMPORAL, "MD5"));
-        usuario.setIntentosFallidos(0);
-        usuario.setCambioClave("S");
-        usuario.setEstadoCodigo("A");
+        persona.setTipo("EMP");
+        Usuario usuario = crearUsuarioBase(persona.getPeperCodigo(), persona.getCedula());
         registrarUsuario(con, usuario, perfilEmpleado);
     }
 
@@ -499,6 +520,112 @@ public class UsuarioDAO extends BaseDAO {
         return menu;
     }
 
+    private Usuario crearUsuarioBase(String codigoPersona, String login) {
+        Usuario usuario = new Usuario();
+        usuario.setCodigoPersona(codigoPersona);
+        usuario.setUsuario(login);
+        usuario.setPassword(hash(CONTRASENA_TEMPORAL, "MD5"));
+        usuario.setIntentosFallidos(0);
+        usuario.setCambioClave("S");
+        usuario.setEstadoCodigo("A");
+        return usuario;
+    }
+
+    private void prepararPersonaExterna(Connection con, Persona persona) throws SQLException {
+        if (persona == null) {
+            throw new SQLException("No se recibieron los datos de la persona.");
+        }
+
+        if (vacio(persona.getPeperCodigo())) {
+            persona.setPeperCodigo(codigoDAO.generarCodigo(con, "PEPER_CODIGO"));
+        }
+
+        if (vacio(persona.getTipo())) {
+            persona.setTipo("INV");
+        }
+
+        if (vacio(persona.getNombres())) {
+            throw new SQLException("Los nombres de la persona son obligatorios.");
+        }
+
+        if (vacio(persona.getApellidos())) {
+            throw new SQLException("Los apellidos de la persona son obligatorios.");
+        }
+
+        if (vacio(persona.getDireccion())) {
+            persona.setDireccion("Sin direccion");
+        }
+
+        persona.setCargasFamiliares(0);
+    }
+
+    private String normalizarLogin(String login, Persona persona) throws SQLException {
+        String loginFinal = login == null ? "" : login.trim();
+
+        if (vacio(loginFinal) && persona != null && !vacio(persona.getCedula())) {
+            loginFinal = persona.getCedula().trim();
+        }
+
+        if (vacio(loginFinal) && persona != null && !vacio(persona.getEmail())) {
+            loginFinal = persona.getEmail().trim();
+        }
+
+        if (vacio(loginFinal)) {
+            throw new SQLException("El login del usuario es obligatorio.");
+        }
+
+        return loginFinal;
+    }
+
+    private void validarUsuarioNuevo(Connection con, Persona persona, String login, String perfilCodigo, boolean validarCedula)
+            throws SQLException {
+
+        if (existeLogin(con, login)) {
+            throw new SQLException("Ya existe un usuario registrado con este login.");
+        }
+
+        if (validarCedula && persona != null && !vacio(persona.getCedula())
+                && personaDAO.existeCedula(con, persona.getCedula())) {
+            throw new SQLException("Ya existe una persona registrada con esta cédula.");
+        }
+
+        if (vacio(perfilCodigo) || !perfilExiste(con, perfilCodigo)) {
+            throw new SQLException("El perfil seleccionado no existe o está inactivo.");
+        }
+    }
+
+    private Persona buscarPersonaBasica(Connection con, String personaCodigo) throws SQLException {
+        String sql = "SELECT p.PEPER_CODIGO, p.PEPER_TIPO, p.PEPER_CEDULA, p.PEPER_NOMBRE, "
+                + "p.PEPER_APELLIDO, p.PEPER_EMAIL, CASE WHEN emp.PEEMP_CODIGO IS NULL THEN 'N' ELSE 'S' END AS ES_EMPLEADO, "
+                + "emp.PEEMP_CODIGO "
+                + "FROM peper_person p LEFT JOIN peemp_emplea emp ON p.PEPER_CODIGO = emp.PEPER_CODIGO "
+                + "WHERE p.PEPER_CODIGO = ?";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, personaCodigo);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapearPersonaBasica(rs);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private boolean perfilExiste(Connection con, String perfilCodigo) throws SQLException {
+        String sql = "SELECT XEPER_CODIGO FROM xeper_perfil WHERE XEPER_CODIGO = ? AND COALESCE(XEPER_ESTADO, 'A') = 'A'";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, perfilCodigo);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
     private void registrarUsuario(Connection con, Usuario usuario, String perfilCodigo) throws SQLException {
         if (existeLogin(con, usuario.getUsuario())) {
             throw new SQLException("Ya existe un usuario con ese login.");
@@ -670,6 +797,16 @@ public class UsuarioDAO extends BaseDAO {
     }
 
     private String generarCodigoUsuario(Connection con) {
+        Set<String> columnas;
+        try {
+            columnas = obtenerColumnas(con, "xeusu_usuari");
+            if (!tieneColumna(columnas, "XEUSU_CODIGO")) {
+                return "";
+            }
+        } catch (SQLException e) {
+            return "";
+        }
+
         String sql = "SELECT MAX(CAST(SUBSTRING(XEUSU_CODIGO, 4) AS UNSIGNED)) AS maximo "
                 + "FROM xeusu_usuari WHERE XEUSU_CODIGO LIKE 'USU%'";
 
@@ -707,6 +844,8 @@ public class UsuarioDAO extends BaseDAO {
         usuario.setUsuarioCodigo(obtenerTexto(rs, "XEUSU_CODIGO", "USUARIO_CODIGO"));
         usuario.setLogin(obtenerTexto(rs, "XEUSU_LOGIN", "LOGIN", "USUARIO"));
         usuario.setPersonaCodigo(obtenerTexto(rs, "PEPER_CODIGO", "PERSONA_CODIGO"));
+        usuario.setTipoPersona(obtenerTexto(rs, "PEPER_TIPO"));
+        usuario.setTipoPersonaDescripcion(obtenerTexto(rs, "PEPER_TIPO_DESCRI", "PETIP_DESCRI", "TIPO_DESCRI"));
         usuario.setCedula(obtenerTexto(rs, "PEPER_CEDULA", "CEDULA"));
         usuario.setNombres(obtenerTexto(rs, "PEPER_NOMBRE", "NOMBRES", "NOMBRE"));
         usuario.setApellidos(obtenerTexto(rs, "PEPER_APELLIDO", "APELLIDOS", "APELLIDO"));
@@ -717,15 +856,22 @@ public class UsuarioDAO extends BaseDAO {
         usuario.setCambioClave(obtenerTexto(rs, "XEUSU_CAMBIO_CLAVE", "CAMBIO_CLAVE"));
         usuario.setIntentosFallidos(obtenerEntero(rs, "XEUSU_INTENTOS", "INTENTOS"));
         usuario.setUltimoAcceso(obtenerTexto(rs, "XEUSU_ULTIMO_ACCESO", "ULTIMO_ACCESO"));
+        usuario.setEsEmpleado(obtenerTexto(rs, "ES_EMPLEADO"));
+        usuario.setCodigoEmpleado(obtenerTexto(rs, "PEEMP_CODIGO"));
         return usuario;
     }
 
     private Persona mapearPersonaBasica(ResultSet rs) throws SQLException {
         Persona persona = new Persona();
         persona.setPeperCodigo(obtenerTexto(rs, "PEPER_CODIGO", "PERSONA_CODIGO"));
+        persona.setTipo(obtenerTexto(rs, "PEPER_TIPO"));
+        persona.setTipoDescripcion(obtenerTexto(rs, "PEPER_TIPO_DESCRI", "PETIP_DESCRI", "TIPO_DESCRI"));
         persona.setCedula(obtenerTexto(rs, "PEPER_CEDULA", "CEDULA"));
         persona.setNombres(obtenerTexto(rs, "PEPER_NOMBRE", "NOMBRES", "NOMBRE"));
         persona.setApellidos(obtenerTexto(rs, "PEPER_APELLIDO", "APELLIDOS", "APELLIDO"));
+        persona.setEmail(obtenerTexto(rs, "PEPER_EMAIL", "EMAIL"));
+        persona.setEsEmpleado(obtenerTexto(rs, "ES_EMPLEADO"));
+        persona.setCodigoEmpleado(obtenerTexto(rs, "PEEMP_CODIGO"));
         return persona;
     }
 

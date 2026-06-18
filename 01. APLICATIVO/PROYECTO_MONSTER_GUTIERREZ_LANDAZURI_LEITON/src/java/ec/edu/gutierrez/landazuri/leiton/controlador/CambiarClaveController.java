@@ -27,18 +27,27 @@ public class CambiarClaveController extends HttpServlet {
         }
 
         String login = String.valueOf(sesion.getAttribute("usuarioLogueado"));
-        String actual = valor(request, "claveActual");
         String nueva = valor(request, "claveNueva");
         String confirmar = valor(request, "claveConfirmar");
         Usuario usuario = usuarioDAO.buscarPorLogin(login);
 
-        if (usuario == null || !usuarioDAO.validarPassword(usuario, actual)) {
-            volver(request, response, "La contrasena actual no es correcta.");
+        if (usuario == null) {
+            volver(request, response, "No se pudo identificar el usuario en sesion.");
             return;
         }
 
         if (nueva.isEmpty()) {
             volver(request, response, "La nueva contrasena es obligatoria.");
+            return;
+        }
+
+        if (nueva.length() < 6) {
+            volver(request, response, "La nueva contrasena debe tener al menos 6 caracteres.");
+            return;
+        }
+
+        if (UsuarioDAO.CONTRASENA_TEMPORAL.equals(nueva)) {
+            volver(request, response, "La nueva contrasena no puede ser igual a la contrasena temporal.");
             return;
         }
 

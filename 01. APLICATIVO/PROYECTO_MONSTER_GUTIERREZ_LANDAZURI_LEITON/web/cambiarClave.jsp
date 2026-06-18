@@ -9,9 +9,9 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Cambiar contrasena | Master Monster</title>
+        <title>Cambiar contraseña  | Master Monster</title>
         <link rel="icon" type="image/png" href="img/favicon.png">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/CSS/estilos.css?v=20260615-seg1">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/CSS/estilos.css?v=20260617-usuarios1">
     </head>
 
     <body>
@@ -23,7 +23,7 @@
                     </div>
 
                     <h1>Master Monster</h1>
-                    <p class="subtitulo">Cambio obligatorio de contrasena</p>
+                    <p class="subtitulo">Crea tu nueva contraseña</p>
 
                     <% if (error != null) { %>
                         <p class="mensaje-error-general"><%= error %></p>
@@ -31,21 +31,16 @@
 
                     <form action="${pageContext.request.contextPath}/CambiarClaveController" method="post" novalidate>
                         <div class="grupo-campo">
-                            <label for="claveActual">Contrasena actual</label>
-                            <input type="password" id="claveActual" name="claveActual" placeholder="Contrasena actual" autocomplete="current-password" required>
+                            <label for="claveNueva">Nueva contraseña</label>
+                            <input type="password" id="claveNueva" name="claveNueva" placeholder="Nueva contraseña" autocomplete="new-password" required>
                         </div>
 
                         <div class="grupo-campo">
-                            <label for="claveNueva">Nueva contrasena</label>
-                            <input type="password" id="claveNueva" name="claveNueva" placeholder="Nueva contrasena" autocomplete="new-password" required>
+                            <label for="claveConfirmar">Confirmar contraseña</label>
+                            <input type="password" id="claveConfirmar" name="claveConfirmar" placeholder="Confirmar nueva contraseña" autocomplete="new-password" required>
                         </div>
 
-                        <div class="grupo-campo">
-                            <label for="claveConfirmar">Confirmar contrasena</label>
-                            <input type="password" id="claveConfirmar" name="claveConfirmar" placeholder="Confirmar nueva contrasena" autocomplete="new-password" required>
-                        </div>
-
-                        <button type="submit" class="btn-ingresar">Guardar contrasena</button>
+                        <button type="submit" class="btn-ingresar">Guardar contraseña</button>
                     </form>
 
                     <p class="pie">GUTIERREZ - LANDAZURI - LEITON</p>
@@ -58,7 +53,7 @@
                         </div>
 
                         <h2>Protege tu cuenta</h2>
-                        <p>Despues de guardar la nueva contrasena podras continuar al panel principal.</p>
+                        <p>Ya ingresaste con tu clave temporal. Ahora solo define una nueva contraseña para continuar.</p>
                     </div>
                 </div>
             </section>

@@ -5,6 +5,8 @@ public class UsuarioPerfil {
     private String usuarioCodigo;
     private String login;
     private String personaCodigo;
+    private String tipoPersona;
+    private String tipoPersonaDescripcion;
     private String cedula;
     private String nombres;
     private String apellidos;
@@ -15,6 +17,8 @@ public class UsuarioPerfil {
     private String cambioClave;
     private int intentosFallidos;
     private String ultimoAcceso;
+    private String esEmpleado;
+    private String codigoEmpleado;
 
     public String getUsuarioCodigo() {
         return usuarioCodigo;
@@ -38,6 +42,22 @@ public class UsuarioPerfil {
 
     public void setPersonaCodigo(String personaCodigo) {
         this.personaCodigo = personaCodigo;
+    }
+
+    public String getTipoPersona() {
+        return tipoPersona;
+    }
+
+    public void setTipoPersona(String tipoPersona) {
+        this.tipoPersona = tipoPersona;
+    }
+
+    public String getTipoPersonaDescripcion() {
+        return tipoPersonaDescripcion;
+    }
+
+    public void setTipoPersonaDescripcion(String tipoPersonaDescripcion) {
+        this.tipoPersonaDescripcion = tipoPersonaDescripcion;
     }
 
     public String getCedula() {
@@ -118,5 +138,21 @@ public class UsuarioPerfil {
 
     public void setUltimoAcceso(String ultimoAcceso) {
         this.ultimoAcceso = ultimoAcceso;
+    }
+
+    public String getEsEmpleado() {
+        return esEmpleado;
+    }
+
+    public void setEsEmpleado(String esEmpleado) {
+        this.esEmpleado = esEmpleado;
+    }
+
+    public String getCodigoEmpleado() {
+        return codigoEmpleado;
+    }
+
+    public void setCodigoEmpleado(String codigoEmpleado) {
+        this.codigoEmpleado = codigoEmpleado;
     }
 }
