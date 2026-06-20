@@ -414,84 +414,92 @@ public class UsuarioDAO extends BaseDAO {
             return new ArrayList<>();
         }
 
-        List<MenuOpcion> menu = consultarMenu("XEUSU_LOGIN", usuario.getUsuario());
+        List<MenuOpcion> opciones = consultarMenu("XEUSU_LOGIN", usuario.getUsuario());
 
-        if (menu.isEmpty() && !vacio(usuario.getCodigo())) {
-            menu = consultarMenu("XEUSU_CODIGO", usuario.getCodigo());
+        if (opciones.isEmpty() && !vacio(usuario.getCodigoPersona())) {
+            opciones = consultarMenu("PEPER_CODIGO", usuario.getCodigoPersona());
         }
 
-        Map<String, MenuOpcion> unicos = new LinkedHashMap<>();
+        if (opciones.isEmpty() && !vacio(usuario.getCodigo())) {
+            opciones = consultarMenu("XEUSU_CODIGO", usuario.getCodigo());
+        }
 
-        for (MenuOpcion opcion : menu) {
-            if (!opcionPermitida(opcion)) {
+        return construirArbolMenu(opciones);
+    }
+
+    private List<MenuOpcion> construirArbolMenu(List<MenuOpcion> opciones) {
+        Map<String, MenuOpcion> mapa = new LinkedHashMap<>();
+        List<MenuOpcion> raices = new ArrayList<>();
+
+        if (opciones == null) {
+            return raices;
+        }
+
+        opciones.sort(Comparator.comparingInt(MenuOpcion::getNivel)
+                .thenComparing(MenuOpcion::getCodigoPadre, Comparator.nullsFirst(String.CASE_INSENSITIVE_ORDER))
+                .thenComparingInt(MenuOpcion::getOrden)
+                .thenComparing(MenuOpcion::getDescripcion, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+
+        for (MenuOpcion opcion : opciones) {
+            if (opcion == null || vacio(opcion.getCodigo()) || !opcion.isPuedeVer()) {
                 continue;
             }
 
-            String llave = !vacio(opcion.getCodigo()) ? opcion.getCodigo() : opcion.getUrl();
+            if (vacio(opcion.getTipo())) {
+                opcion.setTipo(vacio(opcion.getUrl()) ? "G" : "O");
+            }
 
-            if (!vacio(llave) && !unicos.containsKey(llave)) {
-                unicos.put(llave, opcion);
+            mapa.put(opcion.getCodigo().trim(), opcion);
+        }
+
+        for (MenuOpcion opcion : mapa.values()) {
+            String padre = opcion.getCodigoPadre();
+
+            if (!vacio(padre) && mapa.containsKey(padre.trim())) {
+                mapa.get(padre.trim()).getHijos().add(opcion);
+            } else {
+                raices.add(opcion);
             }
         }
 
-        List<MenuOpcion> ordenado = new ArrayList<>(unicos.values());
-        ordenado.sort(Comparator.comparingInt(MenuOpcion::getOrden)
-                .thenComparing(MenuOpcion::getDescripcion, String.CASE_INSENSITIVE_ORDER));
-        return ordenado;
+        ordenarMenu(raices);
+        return podarMenuVacio(raices);
     }
 
-    private boolean opcionPermitida(MenuOpcion opcion) {
-        if (opcion == null) {
-            return false;
+    private void ordenarMenu(List<MenuOpcion> opciones) {
+        if (opciones == null) {
+            return;
         }
 
-        String codigo = opcion.getCodigo() == null
-                ? ""
-                : opcion.getCodigo().trim().toUpperCase(Locale.ROOT);
+        opciones.sort(Comparator.comparingInt(MenuOpcion::getOrden)
+                .thenComparing(MenuOpcion::getDescripcion, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
 
-        if ("INI".equals(codigo)
-                || "DEP".equals(codigo)
-                || "CAR".equals(codigo)
-                || "EMP".equals(codigo)
-                || "USU".equals(codigo)
-                || "PER".equals(codigo)
-                || "OCP".equals(codigo)
-                || "OPC".equals(codigo)) {
-            return true;
+        for (MenuOpcion opcion : opciones) {
+            ordenarMenu(opcion.getHijos());
         }
-
-        return rutaPermitida(normalizarRuta(opcion.getUrl()));
     }
 
-    private boolean rutaPermitida(String ruta) {
-        return "pagprincipal.jsp".equals(ruta)
-                || "departamentos.jsp".equals(ruta)
-                || "departamentocontroller".equals(ruta)
-                || "cargos.jsp".equals(ruta)
-                || "cargocontroller".equals(ruta)
-                || "empleados.jsp".equals(ruta)
-                || "empleadocontroller".equals(ruta)
-                || "usuarios.jsp".equals(ruta)
-                || "usuariocontroller".equals(ruta)
-                || "perfiles.jsp".equals(ruta)
-                || "perfilcontroller".equals(ruta)
-                || "permisos.jsp".equals(ruta)
-                || "permisocontroller".equals(ruta);
-    }
+    private List<MenuOpcion> podarMenuVacio(List<MenuOpcion> opciones) {
+        List<MenuOpcion> resultado = new ArrayList<>();
 
-    private String normalizarRuta(String ruta) {
-        String limpia = ruta == null ? "" : ruta.trim();
-        int query = limpia.indexOf('?');
-
-        if (query >= 0) {
-            limpia = limpia.substring(0, query);
+        if (opciones == null) {
+            return resultado;
         }
 
-        while (limpia.startsWith("/")) {
-            limpia = limpia.substring(1);
+        for (MenuOpcion opcion : opciones) {
+            List<MenuOpcion> hijosVisibles = podarMenuVacio(opcion.getHijos());
+            opcion.getHijos().clear();
+            opcion.getHijos().addAll(hijosVisibles);
+
+            boolean tieneUrl = !vacio(opcion.getUrl());
+            boolean esContenedor = opcion.esSubsistema() || opcion.esGrupo() || !opcion.getHijos().isEmpty();
+
+            if (tieneUrl || (esContenedor && !opcion.getHijos().isEmpty())) {
+                resultado.add(opcion);
+            }
         }
 
-        return limpia.toLowerCase(Locale.ROOT);
+        return resultado;
     }
 
     private List<MenuOpcion> consultarMenu(String columnaUsuario, String valor) {
@@ -501,7 +509,8 @@ public class UsuarioDAO extends BaseDAO {
             return menu;
         }
 
-        String sql = "SELECT * FROM vw_menu_usuario WHERE " + columnaUsuario + " = ?";
+        String sql = "SELECT * FROM vw_menu_usuario WHERE " + columnaUsuario + " = ? "
+                + "ORDER BY XEOPC_NIVEL, XEOPC_PADRE, XEOPC_ORDEN, XEOPC_DESCRI";
 
         try (Connection con = obtenerConexion();
                 PreparedStatement ps = con.prepareStatement(sql)) {
@@ -514,7 +523,48 @@ public class UsuarioDAO extends BaseDAO {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("No se pudo cargar menu por " + columnaUsuario + ": " + e.getMessage());
+            System.out.println("No se pudo usar vw_menu_usuario por " + columnaUsuario + ": " + e.getMessage());
+            menu = consultarMenuFallback(columnaUsuario, valor);
+        }
+
+        return menu;
+    }
+
+    private List<MenuOpcion> consultarMenuFallback(String columnaUsuario, String valor) {
+        List<MenuOpcion> menu = new ArrayList<>();
+
+        if (vacio(valor)) {
+            return menu;
+        }
+
+        String sql = "SELECT DISTINCT u.PEPER_CODIGO, u.XEUSU_LOGIN, pf.XEPER_CODIGO, pf.XEPER_DESCRI, "
+                + "op.XEOPC_CODIGO, op.XESIS_CODIGO, op.XEOPC_PADRE, op.XEOPC_DESCRI, "
+                + "op.XEOPC_TIPO, op.XEOPC_NIVEL, op.XEOPC_URL, op.XEOPC_ICONO, op.XEOPC_ORDEN, op.XEOPC_ESTADO, "
+                + "oxp.XEOXP_VER, oxp.XEOXP_CREAR, oxp.XEOXP_EDITAR, oxp.XEOXP_ELIMINAR "
+                + "FROM xeusu_usuari u "
+                + "JOIN xeuxp_usuper up ON u.PEPER_CODIGO = up.PEPER_CODIGO "
+                + "AND u.XEUSU_LOGIN = up.XEUSU_LOGIN AND up.XEUXP_FECRET IS NULL "
+                + "JOIN xeper_perfil pf ON up.XEPER_CODIGO = pf.XEPER_CODIGO "
+                + "AND COALESCE(pf.XEPER_ESTADO, 'A') = 'A' "
+                + "JOIN xeoxp_opcper oxp ON pf.XEPER_CODIGO = oxp.XEPER_CODIGO "
+                + "AND oxp.XEOXP_FECRET IS NULL AND COALESCE(oxp.XEOXP_VER, 'S') = 'S' "
+                + "JOIN xeopc_opcion op ON oxp.XEOPC_CODIGO = op.XEOPC_CODIGO "
+                + "AND COALESCE(op.XEOPC_ESTADO, 'A') = 'A' "
+                + "WHERE u." + columnaUsuario + " = ? AND COALESCE(u.XEEST_CODIGO, 'A') = 'A' "
+                + "ORDER BY op.XEOPC_NIVEL, op.XEOPC_PADRE, op.XEOPC_ORDEN, op.XEOPC_DESCRI";
+
+        try (Connection con = obtenerConexion();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, valor);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    menu.add(mapearMenu(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("No se pudo cargar menu fallback por " + columnaUsuario + ": " + e.getMessage());
         }
 
         return menu;
@@ -882,10 +932,25 @@ public class UsuarioDAO extends BaseDAO {
         opcion.setUrl(obtenerTexto(rs, "XEOPC_URL", "URL", "RUTA"));
         opcion.setIcono(obtenerTexto(rs, "XEOPC_ICONO", "ICONO"));
         opcion.setCodigoPadre(obtenerTexto(rs, "XEOPC_PADRE", "PADRE"));
+        opcion.setTipo(obtenerTexto(rs, "XEOPC_TIPO", "TIPO"));
+        opcion.setNivel(obtenerEntero(rs, "XEOPC_NIVEL", "NIVEL"));
         opcion.setOrden(obtenerEntero(rs, "XEOPC_ORDEN", "ORDEN"));
         opcion.setPerfilCodigo(obtenerTexto(rs, "XEPER_CODIGO", "PERFIL_CODIGO"));
         opcion.setPerfilDescripcion(obtenerTexto(rs, "XEPER_DESCRI", "PERFIL"));
+        opcion.setPuedeVer(esPermisoActivo(obtenerTexto(rs, "XEOXP_VER", "PUEDE_VER", "VER"), true));
+        opcion.setPuedeCrear(esPermisoActivo(obtenerTexto(rs, "XEOXP_CREAR", "PUEDE_CREAR", "CREAR"), false));
+        opcion.setPuedeEditar(esPermisoActivo(obtenerTexto(rs, "XEOXP_EDITAR", "PUEDE_EDITAR", "EDITAR"), false));
+        opcion.setPuedeEliminar(esPermisoActivo(obtenerTexto(rs, "XEOXP_ELIMINAR", "PUEDE_ELIMINAR", "ELIMINAR"), false));
         return opcion;
+    }
+
+    private boolean esPermisoActivo(String valor, boolean porDefecto) {
+        if (valor == null || valor.trim().isEmpty()) {
+            return porDefecto;
+        }
+
+        String limpio = valor.trim().toUpperCase(Locale.ROOT);
+        return "S".equals(limpio) || "1".equals(limpio) || "TRUE".equals(limpio) || "A".equals(limpio);
     }
 
     private void agregar(Set<String> disponibles, List<String> columnas, List<Object> valores,

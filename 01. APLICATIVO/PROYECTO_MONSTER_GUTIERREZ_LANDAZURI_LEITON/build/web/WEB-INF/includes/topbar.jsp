@@ -1,14 +1,15 @@
-<%@page import="ec.edu.gutierrez.landazuri.leiton.modelo.MenuOpcion"%>
-<%@page import="java.util.List"%>
+<%@page import="ec.edu.gutierrez.landazuri.leiton.modelo.Usuario"%>
+<%@page import="ec.edu.gutierrez.landazuri.leiton.modelo.Perfil"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <%!
-    private String topbarH(Object valor) {
+    private String h(Object valor) {
         if (valor == null) {
             return "";
         }
 
         String texto = String.valueOf(valor);
+
         return texto.replace("&", "&amp;")
                 .replace("<", "&lt;")
                 .replace(">", "&gt;")
@@ -16,169 +17,110 @@
                 .replace("'", "&#39;");
     }
 
-    private boolean topbarTieneUrl(MenuOpcion opcion) {
-        return opcion != null && opcion.getUrl() != null && !opcion.getUrl().trim().isEmpty();
-    }
-
-    private String topbarNormalizarRuta(String ruta) {
-        String limpia = ruta == null ? "" : ruta.trim();
-        int query = limpia.indexOf('?');
-
-        if (query >= 0) {
-            limpia = limpia.substring(0, query);
-        }
-
-        while (limpia.startsWith("/")) {
-            limpia = limpia.substring(1);
-        }
-
-        return limpia.toLowerCase();
-    }
-
-    private boolean topbarEsInicio(MenuOpcion opcion) {
-        if (!topbarTieneUrl(opcion)) {
+    private boolean textoValido(String texto) {
+        if (texto == null || texto.trim().isEmpty()) {
             return false;
         }
 
-        String codigo = opcion.getCodigo() == null ? "" : opcion.getCodigo().trim().toUpperCase();
-        String ruta = topbarNormalizarRuta(opcion.getUrl());
-        return "INI".equals(codigo) || "pagprincipal.jsp".equals(ruta);
-    }
+        String limpio = texto.trim();
 
-    private boolean topbarEsAdministracion(MenuOpcion opcion) {
-        if (opcion == null) {
+        if (limpio.startsWith("ec.edu.")) {
             return false;
         }
 
-        String codigo = opcion.getCodigo() == null ? "" : opcion.getCodigo().trim().toUpperCase();
-        String ruta = topbarTieneUrl(opcion) ? topbarNormalizarRuta(opcion.getUrl()) : "";
-        String descripcion = opcion.getDescripcion() == null ? "" : opcion.getDescripcion().trim().toLowerCase();
-
-        return "USU".equals(codigo)
-                || "PER".equals(codigo)
-                || "OCP".equals(codigo)
-                || "OPC".equals(codigo)
-                || "usuarios.jsp".equals(ruta)
-                || "usuariocontroller".equals(ruta)
-                || "perfiles.jsp".equals(ruta)
-                || "perfilcontroller".equals(ruta)
-                || "permisos.jsp".equals(ruta)
-                || "permisocontroller".equals(ruta)
-                || descripcion.contains("usuario")
-                || descripcion.contains("perfil")
-                || descripcion.contains("permiso");
-    }
-
-    private boolean topbarModuloPrincipal(MenuOpcion opcion) {
-        if (opcion == null || topbarEsInicio(opcion) || topbarEsAdministracion(opcion)) {
+        if (limpio.contains("@") && limpio.contains("modelo")) {
             return false;
         }
 
-        String codigo = opcion.getCodigo() == null ? "" : opcion.getCodigo().trim().toUpperCase();
-        String ruta = topbarTieneUrl(opcion) ? topbarNormalizarRuta(opcion.getUrl()) : "";
-
-        return "DEP".equals(codigo)
-                || "CAR".equals(codigo)
-                || "EMP".equals(codigo)
-                || "departamentos.jsp".equals(ruta)
-                || "departamentocontroller".equals(ruta)
-                || "cargos.jsp".equals(ruta)
-                || "cargocontroller".equals(ruta)
-                || "empleados.jsp".equals(ruta)
-                || "empleadocontroller".equals(ruta);
+        return true;
     }
 
-    private String topbarRuta(MenuOpcion opcion) {
-        if (!topbarTieneUrl(opcion)) {
-            return "#";
-        }
-
-        String ruta = topbarNormalizarRuta(opcion.getUrl());
-
-        if ("departamentos.jsp".equals(ruta)) {
-            return "DepartamentoController";
-        }
-
-        if ("cargos.jsp".equals(ruta)) {
-            return "CargoController";
-        }
-
-        if ("empleados.jsp".equals(ruta)) {
-            return "EmpleadoController";
-        }
-
-        if ("usuarios.jsp".equals(ruta)) {
-            return "UsuarioController";
-        }
-
-        if ("perfiles.jsp".equals(ruta)) {
-            return "PerfilController";
-        }
-
-        if ("permisos.jsp".equals(ruta)) {
-            return "PermisoController";
-        }
-
-        return ruta;
-    }
-
-    private String topbarTexto(MenuOpcion opcion) {
-        if (opcion == null) {
+    private String obtenerTexto(Object valor) {
+        if (valor == null) {
             return "";
         }
 
-        String codigo = opcion.getCodigo() == null ? "" : opcion.getCodigo().trim().toUpperCase();
+        String texto = String.valueOf(valor).trim();
 
-        if ("DEP".equals(codigo)) {
-            return "Departamentos";
+        if (!textoValido(texto)) {
+            return "";
         }
 
-        if ("CAR".equals(codigo)) {
-            return "Cargos";
-        }
-
-        if ("EMP".equals(codigo)) {
-            return "Empleados";
-        }
-
-        if ("USU".equals(codigo)) {
-            return "Usuarios";
-        }
-
-        if ("PER".equals(codigo)) {
-            return "Perfiles";
-        }
-
-        if ("OCP".equals(codigo) || "OPC".equals(codigo)) {
-            return "Permisos";
-        }
-
-        return opcion.getDescripcion() == null ? "" : opcion.getDescripcion();
+        return texto;
     }
 %>
 
 <%
-    List<MenuOpcion> topbarMenu = (List<MenuOpcion>) session.getAttribute("menuUsuario");
-    Object topbarUsuarioObj = session.getAttribute("usuarioLogueado");
-    Object topbarPerfilObj = session.getAttribute("perfilNombre");
-    String topbarUsuario = topbarUsuarioObj == null ? "" : String.valueOf(topbarUsuarioObj);
-    String topbarPerfil = topbarPerfilObj == null ? "" : String.valueOf(topbarPerfilObj);
+    String usuarioNombre = "";
 
-    boolean topbarTieneMenu = topbarMenu != null && !topbarMenu.isEmpty();
-    boolean topbarTieneAdministracion = false;
+    Object usuarioNombreSesion = session.getAttribute("usuarioNombre");
+    usuarioNombre = obtenerTexto(usuarioNombreSesion);
 
-    if (topbarTieneMenu) {
-        for (MenuOpcion opcion : topbarMenu) {
-            if (topbarTieneUrl(opcion) && topbarEsAdministracion(opcion)) {
-                topbarTieneAdministracion = true;
-                break;
+    if (usuarioNombre.isEmpty()) {
+        Object usuarioLogueado = session.getAttribute("usuarioLogueado");
+
+        if (usuarioLogueado instanceof Usuario) {
+            Usuario u = (Usuario) usuarioLogueado;
+            usuarioNombre = obtenerTexto(u.getUsuario());
+        } else {
+            usuarioNombre = obtenerTexto(usuarioLogueado);
+        }
+    }
+
+    if (usuarioNombre.isEmpty()) {
+        Object usuarioSesion = session.getAttribute("usuario");
+
+        if (usuarioSesion instanceof Usuario) {
+            Usuario u = (Usuario) usuarioSesion;
+            usuarioNombre = obtenerTexto(u.getUsuario());
+        } else {
+            usuarioNombre = obtenerTexto(usuarioSesion);
+        }
+    }
+
+    if (usuarioNombre.isEmpty()) {
+        usuarioNombre = "Usuario";
+    }
+
+
+    String perfilNombre = "";
+
+    Object perfilNombreSesion = session.getAttribute("perfilNombre");
+    perfilNombre = obtenerTexto(perfilNombreSesion);
+
+    if (perfilNombre.isEmpty()) {
+        Object perfilSesion = session.getAttribute("perfilUsuario");
+
+        if (perfilSesion instanceof Perfil) {
+            Perfil p = (Perfil) perfilSesion;
+            perfilNombre = obtenerTexto(p.getDescripcion());
+        }
+    }
+
+    if (perfilNombre.isEmpty()) {
+        Object usuarioSesion = session.getAttribute("usuario");
+
+        if (usuarioSesion instanceof Usuario) {
+            Usuario u = (Usuario) usuarioSesion;
+
+            if (u.getPerfil() != null) {
+                perfilNombre = obtenerTexto(u.getPerfil().getDescripcion());
             }
         }
     }
+
+    if (perfilNombre.isEmpty()) {
+        perfilNombre = "Perfil";
+    }
 %>
 
-<header class="topbar topbar-monster-clean">
-    <a class="topbar-logo" href="${pageContext.request.contextPath}/pagPrincipal.jsp" aria-label="Ir al inicio">
+<header class="topbar topbar-monster-simple">
+
+    <a class="topbar-logo-simple"
+       href="${pageContext.request.contextPath}/pagPrincipal.jsp"
+       target="_top"
+       aria-label="Inicio Master Monster">
+
         <img
             src="${pageContext.request.contextPath}/img/Monsters-Inc.-Symbol.png"
             alt="Logo Master Monster"
@@ -186,53 +128,29 @@
 
         <div class="topbar-brand-text">
             <h1>Master Monster</h1>
-            <span>Sistema de gestion de proyectos</span>
+            <span>Sistema de gestión de proyectos</span>
         </div>
     </a>
 
-    <nav class="topbar-nav" aria-label="Menu principal">
-        <a class="topbar-link" href="${pageContext.request.contextPath}/pagPrincipal.jsp">Inicio</a>
+    <!-- GIF / IMAGEN ANIMADA EN EL CENTRO DE LA TOPBAR -->
+    <div class="topbar-gif-center">
+        <img
+            src="${pageContext.request.contextPath}/img/topbar.gif"
+            alt="Animación Master Monster"
+        >
+    </div>
 
-        <% if (topbarTieneMenu) {
-            for (MenuOpcion opcion : topbarMenu) {
-                if (topbarTieneUrl(opcion) && topbarModuloPrincipal(opcion)) { %>
-                    <a class="topbar-link" href="${pageContext.request.contextPath}/<%= topbarH(topbarRuta(opcion)) %>">
-                        <%= topbarH(topbarTexto(opcion)) %>
-                    </a>
-        <%      }
-            }
-           } else { %>
-            <a class="topbar-link" href="${pageContext.request.contextPath}/DepartamentoController">Departamentos</a>
-            <a class="topbar-link" href="${pageContext.request.contextPath}/CargoController">Cargos</a>
-            <a class="topbar-link" href="${pageContext.request.contextPath}/EmpleadoController">Empleados</a>
-        <% } %>
+    <div class="topbar-right-simple">
 
-        <% if (topbarTieneAdministracion) { %>
-            <div class="topbar-dropdown">
-                <button class="topbar-link topbar-dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false">
-                    Administración
-                    <span aria-hidden="true">▾</span>
-                </button>
-
-                <div class="topbar-dropdown-menu" role="menu">
-                    <% for (MenuOpcion opcion : topbarMenu) {
-                        if (topbarTieneUrl(opcion) && topbarEsAdministracion(opcion)) { %>
-                            <a role="menuitem" href="${pageContext.request.contextPath}/<%= topbarH(topbarRuta(opcion)) %>">
-                                <%= topbarH(topbarTexto(opcion)) %>
-                            </a>
-                    <%  }
-                       } %>
-                </div>
-            </div>
-        <% } %>
-    </nav>
-
-    <div class="topbar-user">
-        <div class="topbar-user-info" title="<%= topbarH(topbarUsuario) %> - <%= topbarH(topbarPerfil) %>">
-            <strong><%= topbarH(topbarUsuario) %></strong>
-            <span><%= topbarH(topbarPerfil) %></span>
+        <div class="topbar-user-card-simple" title="<%= h(usuarioNombre) %> - <%= h(perfilNombre) %>">
+            <strong><%= h(usuarioNombre) %></strong>
+            <small><%= h(perfilNombre) %></small>
         </div>
 
-        <a href="${pageContext.request.contextPath}/Logout" class="btn-salir">Cerrar sesion</a>
+        <a href="${pageContext.request.contextPath}/Logout" class="btn-salir-simple" target="_top">
+            Cerrar sesión
+        </a>
+
     </div>
+
 </header>

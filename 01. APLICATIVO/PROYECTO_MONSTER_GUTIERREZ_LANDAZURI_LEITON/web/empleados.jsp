@@ -211,7 +211,6 @@
 
     <body class="body-dashboard">
 
-        <jsp:include page="/WEB-INF/includes/topbar.jsp" />
 
         <main class="crud-page empleado-page">
 
@@ -1171,11 +1170,6 @@
                     </section>
                 </div>
             <% } %>
-
-            <footer class="footer-dashboard">
-                GUTIÉRREZ - LANDÁZURI - LEITON
-            </footer>
-
         </main>
 
         <script src="${pageContext.request.contextPath}/js/empleados.js?v=20260616-empleados1" defer></script>

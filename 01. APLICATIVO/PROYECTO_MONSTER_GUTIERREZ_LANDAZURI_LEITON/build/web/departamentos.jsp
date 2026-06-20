@@ -45,7 +45,6 @@
 
     <body class="body-dashboard">
 
-        <jsp:include page="/WEB-INF/includes/topbar.jsp" />
 
         <main class="crud-page">
 
@@ -326,11 +325,6 @@
                 </div>
 
             </section>
-
-            <footer class="footer-dashboard">
-                GUTIÉRREZ - LANDÁZURI - LEITON
-            </footer>
-
         </main>
         <script src="${pageContext.request.contextPath}/js/departamentos.js" defer></script>
         <script src="${pageContext.request.contextPath}/js/paginacion.js?v=20260611-pag1" defer></script>

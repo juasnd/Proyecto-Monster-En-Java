@@ -117,7 +117,6 @@
 
     <body class="body-dashboard">
 
-        <jsp:include page="/WEB-INF/includes/topbar.jsp" />
 
         <main class="crud-page usuario-page">
 

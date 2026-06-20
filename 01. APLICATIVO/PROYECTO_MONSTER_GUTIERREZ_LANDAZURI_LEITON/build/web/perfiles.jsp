@@ -61,8 +61,6 @@
 
     <body class="body-dashboard">
 
-        <jsp:include page="/WEB-INF/includes/topbar.jsp" />
-
         <main class="crud-page">
             <section class="crud-titulo">
                 <div>
@@ -209,10 +207,6 @@
                     </table>
                 </div>
             </section>
-
-            <footer class="footer-dashboard">
-                GUTIERREZ - LANDAZURI - LEITON
-            </footer>
         </main>
 
         <script src="${pageContext.request.contextPath}/js/perfiles.js?v=20260615-seg1" defer></script>

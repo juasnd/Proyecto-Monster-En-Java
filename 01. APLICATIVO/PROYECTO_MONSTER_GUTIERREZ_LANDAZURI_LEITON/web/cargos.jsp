@@ -46,7 +46,6 @@
 
     <body class="body-dashboard">
 
-        <jsp:include page="/WEB-INF/includes/topbar.jsp" />
 
         <main class="crud-page">
 
@@ -376,11 +375,6 @@
                 </div>
 
             </section>
-
-            <footer class="footer-dashboard">
-                GRUPO 5
-            </footer>
-
         </main>
         
         

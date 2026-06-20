@@ -3,6 +3,7 @@ package ec.edu.gutierrez.landazuri.leiton.controlador;
 import ec.edu.gutierrez.landazuri.leiton.modelo.Usuario;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -48,11 +49,6 @@ public class SeguridadFilter implements Filter {
             return;
         }
 
-        if (!esRutaInternaSiemprePermitida(ruta) && !esRutaDelSistemaPermitida(ruta)) {
-            httpResponse.sendRedirect(httpRequest.getContextPath() + "/accesoDenegado.jsp");
-            return;
-        }
-
         if (!esRutaInternaSiemprePermitida(ruta) && !tienePermiso(sesion, ruta)) {
             httpResponse.sendRedirect(httpRequest.getContextPath() + "/accesoDenegado.jsp");
             return;
@@ -87,21 +83,6 @@ public class SeguridadFilter implements Filter {
                 || "/accesoDenegado.jsp".equals(ruta);
     }
 
-    private boolean esRutaDelSistemaPermitida(String ruta) {
-        return "/DepartamentoController".equals(ruta)
-                || "/departamentos.jsp".equals(ruta)
-                || "/CargoController".equals(ruta)
-                || "/cargos.jsp".equals(ruta)
-                || "/EmpleadoController".equals(ruta)
-                || "/empleados.jsp".equals(ruta)
-                || "/UsuarioController".equals(ruta)
-                || "/usuarios.jsp".equals(ruta)
-                || "/PerfilController".equals(ruta)
-                || "/perfiles.jsp".equals(ruta)
-                || "/PermisoController".equals(ruta)
-                || "/permisos.jsp".equals(ruta);
-    }
-
     private boolean tienePermiso(HttpSession sesion, String ruta) {
         Object atributo = sesion.getAttribute("permisosUsuario");
 
@@ -118,10 +99,8 @@ public class SeguridadFilter implements Filter {
             }
         }
 
-        Set<String> rutasValidas = aliasRuta(ruta);
-
-        for (String rutaValida : rutasValidas) {
-            if (permisos.contains(normalizar(rutaValida))) {
+        for (String alias : aliasRuta(ruta)) {
+            if (permisos.contains(normalizar(alias))) {
                 return true;
             }
         }
@@ -131,61 +110,111 @@ public class SeguridadFilter implements Filter {
 
     private Set<String> aliasRuta(String ruta) {
         Set<String> alias = new HashSet<>();
-        alias.add(ruta);
+        String limpia = ruta == null ? "" : ruta.trim();
 
-        if ("/DepartamentoController".equals(ruta)) {
-            alias.add("/departamentos.jsp");
-            alias.add("DepartamentoController");
-        } else if ("/departamentos.jsp".equals(ruta)) {
-            alias.add("/DepartamentoController");
-            alias.add("DepartamentoController");
-        } else if ("/CargoController".equals(ruta)) {
-            alias.add("/cargos.jsp");
-            alias.add("CargoController");
-        } else if ("/cargos.jsp".equals(ruta)) {
-            alias.add("/CargoController");
-            alias.add("CargoController");
-        } else if ("/EmpleadoController".equals(ruta)) {
-            alias.add("/empleados.jsp");
-            alias.add("EmpleadoController");
-        } else if ("/empleados.jsp".equals(ruta)) {
-            alias.add("/EmpleadoController");
-            alias.add("EmpleadoController");
-        } else if ("/UsuarioController".equals(ruta)) {
-            alias.add("/usuarios.jsp");
-            alias.add("UsuarioController");
-        } else if ("/usuarios.jsp".equals(ruta)) {
-            alias.add("/UsuarioController");
-            alias.add("UsuarioController");
-        } else if ("/PerfilController".equals(ruta)) {
-            alias.add("/perfiles.jsp");
-            alias.add("PerfilController");
-        } else if ("/perfiles.jsp".equals(ruta)) {
-            alias.add("/PerfilController");
-            alias.add("PerfilController");
-        } else if ("/PermisoController".equals(ruta)) {
-            alias.add("/permisos.jsp");
-            alias.add("PermisoController");
-        } else if ("/permisos.jsp".equals(ruta)) {
-            alias.add("/PermisoController");
-            alias.add("PermisoController");
+        alias.add(limpia);
+
+        while (limpia.startsWith("/")) {
+            limpia = limpia.substring(1);
+        }
+
+        alias.add(limpia);
+
+        if (limpia.endsWith(".jsp")) {
+            alias.add(convertirJspAController(limpia));
+        } else if (limpia.endsWith("Controller")) {
+            alias.add(convertirControllerAJsp(limpia));
         }
 
         return alias;
     }
 
+    private String convertirJspAController(String ruta) {
+        String limpia = ruta.toLowerCase(Locale.ROOT);
+
+        if ("departamentos.jsp".equals(limpia)) {
+            return "DepartamentoController";
+        }
+
+        if ("cargos.jsp".equals(limpia)) {
+            return "CargoController";
+        }
+
+        if ("empleados.jsp".equals(limpia)) {
+            return "EmpleadoController";
+        }
+
+        if ("usuarios.jsp".equals(limpia)) {
+            return "UsuarioController";
+        }
+
+        if ("perfiles.jsp".equals(limpia)) {
+            return "PerfilController";
+        }
+
+        if ("permisos.jsp".equals(limpia)) {
+            return "PermisoController";
+        }
+
+        if ("opciones.jsp".equals(limpia)) {
+            return "OpcionController";
+        }
+
+        if ("sistemas.jsp".equals(limpia)) {
+            return "SistemaController";
+        }
+
+        return ruta;
+    }
+
+    private String convertirControllerAJsp(String ruta) {
+        if ("DepartamentoController".equals(ruta)) {
+            return "departamentos.jsp";
+        }
+
+        if ("CargoController".equals(ruta)) {
+            return "cargos.jsp";
+        }
+
+        if ("EmpleadoController".equals(ruta)) {
+            return "empleados.jsp";
+        }
+
+        if ("UsuarioController".equals(ruta)) {
+            return "usuarios.jsp";
+        }
+
+        if ("PerfilController".equals(ruta)) {
+            return "perfiles.jsp";
+        }
+
+        if ("PermisoController".equals(ruta)) {
+            return "permisos.jsp";
+        }
+
+        if ("OpcionController".equals(ruta)) {
+            return "opciones.jsp";
+        }
+
+        if ("SistemaController".equals(ruta)) {
+            return "sistemas.jsp";
+        }
+
+        return ruta;
+    }
+
     private String normalizar(String ruta) {
-        String normalizada = ruta == null ? "" : ruta.trim().toLowerCase();
-        int query = normalizada.indexOf('?');
+        String limpia = ruta == null ? "" : ruta.trim();
+        int query = limpia.indexOf('?');
 
         if (query >= 0) {
-            normalizada = normalizada.substring(0, query);
+            limpia = limpia.substring(0, query);
         }
 
-        if (normalizada.startsWith("/")) {
-            normalizada = normalizada.substring(1);
+        while (limpia.startsWith("/")) {
+            limpia = limpia.substring(1);
         }
 
-        return normalizada;
+        return limpia.toLowerCase(Locale.ROOT);
     }
 }

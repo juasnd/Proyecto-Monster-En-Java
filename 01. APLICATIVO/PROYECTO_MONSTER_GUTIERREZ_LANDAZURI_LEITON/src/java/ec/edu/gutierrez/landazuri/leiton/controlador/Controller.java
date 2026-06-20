@@ -92,12 +92,26 @@ public class Controller extends HttpServlet {
         }
 
         for (MenuOpcion opcion : menu) {
-            if (opcion != null && opcion.getUrl() != null && !opcion.getUrl().trim().isEmpty()) {
-                permisos.add(limpiarUrl(opcion.getUrl()));
-            }
+            agregarPermisosRecursivo(opcion, permisos);
         }
 
         return permisos;
+    }
+
+    private void agregarPermisosRecursivo(MenuOpcion opcion, Set<String> permisos) {
+        if (opcion == null) {
+            return;
+        }
+
+        if (opcion.getUrl() != null && !opcion.getUrl().trim().isEmpty()) {
+            permisos.add(limpiarUrl(opcion.getUrl()));
+        }
+
+        if (opcion.getHijos() != null) {
+            for (MenuOpcion hijo : opcion.getHijos()) {
+                agregarPermisosRecursivo(hijo, permisos);
+            }
+        }
     }
 
     private String limpiarUrl(String url) {
@@ -106,6 +120,10 @@ public class Controller extends HttpServlet {
 
         if (query >= 0) {
             limpia = limpia.substring(0, query);
+        }
+
+        while (limpia.startsWith("/")) {
+            limpia = limpia.substring(1);
         }
 
         return limpia;

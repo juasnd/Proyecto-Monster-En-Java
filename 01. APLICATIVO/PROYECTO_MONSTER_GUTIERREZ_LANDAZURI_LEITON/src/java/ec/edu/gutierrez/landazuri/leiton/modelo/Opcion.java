@@ -8,6 +8,8 @@ public class Opcion {
     private String url;
     private String icono;
     private String codigoPadre;
+    private String tipo;
+    private int nivel;
     private int orden;
     private String estadoCodigo;
 
@@ -62,6 +64,22 @@ public class Opcion {
         this.codigoPadre = codigoPadre;
     }
 
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public int getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(int nivel) {
+        this.nivel = nivel;
+    }
+
     public int getOrden() {
         return orden;
     }
@@ -76,5 +94,17 @@ public class Opcion {
 
     public void setEstadoCodigo(String estadoCodigo) {
         this.estadoCodigo = estadoCodigo;
+    }
+
+    public boolean esSubsistema() {
+        return "S".equalsIgnoreCase(tipo);
+    }
+
+    public boolean esGrupo() {
+        return "G".equalsIgnoreCase(tipo);
+    }
+
+    public boolean esOpcionFinal() {
+        return "O".equalsIgnoreCase(tipo);
     }
 }
