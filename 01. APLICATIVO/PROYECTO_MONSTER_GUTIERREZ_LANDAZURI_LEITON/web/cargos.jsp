@@ -28,6 +28,7 @@
 
     List<Cargo> cargos = (List<Cargo>) request.getAttribute("cargos");
     List<Departamento> departamentos = (List<Departamento>) request.getAttribute("departamentos");
+    boolean puedeReporteCargos = Boolean.TRUE.equals(request.getAttribute("puedeReporteCargos"));
 
     if (modo == null) {
         modo = "listar";
@@ -89,9 +90,11 @@
                             Recargar
                         </a>
 
-                        <button type="button" class="btn-crud reporte" data-reporte-toggle="reporteCargos">
-                            Reportes
-                        </button>
+                        <% if (puedeReporteCargos) { %>
+                            <button type="button" class="btn-crud reporte" data-reporte-toggle="reporteCargos">
+                                Reportes
+                            </button>
+                        <% } %>
                     </div>
 
                     <div class="buscar-registros">
@@ -102,6 +105,7 @@
 
 
 
+                <% if (puedeReporteCargos) { %>
                 <section id="reporteCargos"
                          class="reporte-panel"
                          data-reporte-panel
@@ -110,6 +114,9 @@
                          data-reporte-encabezados="Departamento|Cod. Cargo|Descripcion"
                          data-reporte-titulo="Reporte de Cargos"
                          data-reporte-archivo="reporte_cargos"
+                         data-reporte-codigo="RCA"
+                         data-reporte-modulo="Cargos"
+                         data-reporte-registro-url="${pageContext.request.contextPath}/ReporteController"
                          hidden>
                     <div class="reporte-panel-header">
                         <div>
@@ -142,6 +149,7 @@
                         </table>
                     </div>
                 </section>
+                <% } %>
 
                 <%-- FORMULARIO DE NUEVO CARGO --%>
                 <% if ("nuevo".equals(modo)) { %>
@@ -380,7 +388,7 @@
         
         <script src="${pageContext.request.contextPath}/js/departamentos.js" defer></script>
         <script src="${pageContext.request.contextPath}/js/paginacion.js?v=20260611-pag1" defer></script>
-        <script src="${pageContext.request.contextPath}/js/reportes.js?v=20260611-pag1" defer></script>
+        <script src="${pageContext.request.contextPath}/js/reportes.js?v=20260621-hist1" defer></script>
 
     </body>
 </html>

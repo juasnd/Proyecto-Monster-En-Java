@@ -1,5 +1,7 @@
 package ec.edu.gutierrez.landazuri.leiton.controlador;
 
+import ec.edu.gutierrez.landazuri.leiton.dao.PermisoDAO;
+
 import ec.edu.gutierrez.landazuri.leiton.dao.PerfilDAO;
 import ec.edu.gutierrez.landazuri.leiton.modelo.Perfil;
 import java.io.IOException;
@@ -8,11 +10,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet(name = "PerfilController", urlPatterns = {"/PerfilController"})
 public class PerfilController extends HttpServlet {
 
     private final PerfilDAO perfilDAO = new PerfilDAO();
+    private final PermisoDAO permisoDAO = new PermisoDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -67,6 +71,7 @@ public class PerfilController extends HttpServlet {
             throws ServletException, IOException {
 
         request.setAttribute("perfiles", perfilDAO.listarPerfiles());
+        cargarPermisoReporte(request);
         request.getRequestDispatcher("perfiles.jsp").forward(request, response);
     }
 
@@ -114,6 +119,22 @@ public class PerfilController extends HttpServlet {
                 + (ok ? "actualizado" : "no_actualizado"));
     }
 
+
+    private void cargarPermisoReporte(HttpServletRequest request) {
+        String perfilCodigo = obtenerPerfilCodigo(request);
+        boolean permitido = permisoDAO.tienePermiso(perfilCodigo, "RPF");
+        request.setAttribute("puedeReportePerfiles", permitido);
+    }
+
+    private String obtenerPerfilCodigo(HttpServletRequest request) {
+        HttpSession sesion = request.getSession(false);
+
+        if (sesion == null || sesion.getAttribute("perfilCodigo") == null) {
+            return "";
+        }
+
+        return String.valueOf(sesion.getAttribute("perfilCodigo"));
+    }
     private Perfil leerPerfil(HttpServletRequest request) {
         Perfil perfil = new Perfil();
         perfil.setCodigo(valor(request, "codigo").toUpperCase());

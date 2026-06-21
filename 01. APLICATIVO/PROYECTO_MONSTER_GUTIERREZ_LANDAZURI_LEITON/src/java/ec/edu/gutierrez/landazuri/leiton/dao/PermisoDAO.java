@@ -91,34 +91,35 @@ public class PermisoDAO extends BaseDAO {
             ps.executeUpdate();
         }
     }
-}
-public boolean tienePermiso(String perfilCodigo, String opcionCodigo) {
-    if (perfilCodigo == null || perfilCodigo.trim().isEmpty()
-            || opcionCodigo == null || opcionCodigo.trim().isEmpty()) {
-        return false;
-    }
 
-    String sql = "SELECT 1 "
-            + "FROM xeoxp_opcper "
-            + "WHERE XEPER_CODIGO = ? "
-            + "AND XEOPC_CODIGO = ? "
-            + "AND XEOXP_FECRET IS NULL "
-            + "AND COALESCE(XEOXP_VER, 'S') = 'S' "
-            + "LIMIT 1";
-
-    try (Connection con = obtenerConexion();
-            PreparedStatement ps = con.prepareStatement(sql)) {
-
-        ps.setString(1, perfilCodigo.trim());
-        ps.setString(2, opcionCodigo.trim());
-
-        try (ResultSet rs = ps.executeQuery()) {
-            return rs.next();
+    public boolean tienePermiso(String perfilCodigo, String opcionCodigo) {
+        if (perfilCodigo == null || perfilCodigo.trim().isEmpty()
+                || opcionCodigo == null || opcionCodigo.trim().isEmpty()) {
+            return false;
         }
 
-    } catch (SQLException e) {
-        System.out.println("Error al validar permiso: " + e.getMessage());
-    }
+        String sql = "SELECT 1 "
+                + "FROM xeoxp_opcper "
+                + "WHERE XEPER_CODIGO = ? "
+                + "AND XEOPC_CODIGO = ? "
+                + "AND XEOXP_FECRET IS NULL "
+                + "AND COALESCE(XEOXP_VER, 'S') = 'S' "
+                + "LIMIT 1";
 
-    return false;
+        try (Connection con = obtenerConexion();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, perfilCodigo.trim());
+            ps.setString(2, opcionCodigo.trim());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al validar permiso: " + e.getMessage());
+        }
+
+        return false;
+    }
 }

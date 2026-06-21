@@ -109,6 +109,8 @@ function ejecutarAccionReporte(panel, accion) {
         return;
     }
 
+    registrarHistorialReporte(datos, accion);
+
     if (accion === "csv") {
         descargarCsv(datos);
     } else if (accion === "excel") {
@@ -136,9 +138,14 @@ function leerDatosReporte(panel) {
         })
         .filter(Boolean);
 
+    const titulo = panel.dataset.reporteTitulo || "Reporte";
     const datos = {
-        titulo: panel.dataset.reporteTitulo || "Reporte",
+        titulo: titulo,
         archivo: panel.dataset.reporteArchivo || "reporte",
+        codigoReporte: panel.dataset.reporteCodigo || "",
+        modulo: panel.dataset.reporteModulo || titulo.replace(/^Reporte de\s+/i, ""),
+        registroUrl: panel.dataset.reporteRegistroUrl || "",
+        filtros: obtenerFiltrosReporte(panel),
         encabezados: encabezados,
         filas: []
     };
@@ -230,6 +237,105 @@ function actualizarVistaPrevia(panel) {
     });
 }
 
+function registrarHistorialReporte(datos, accion) {
+    if (!datos || !datos.registroUrl || !datos.codigoReporte) {
+        return;
+    }
+
+    const cuerpo = new URLSearchParams();
+    cuerpo.append("accion", "registrar");
+    cuerpo.append("codigoReporte", datos.codigoReporte);
+    cuerpo.append("modulo", datos.modulo || "");
+    cuerpo.append("tipoReporte", datos.titulo || "Reporte");
+    cuerpo.append("formato", normalizarFormatoReporte(accion));
+    cuerpo.append("totalRegistros", String(datos.filas ? datos.filas.length : 0));
+    cuerpo.append("filtros", datos.filtros || "");
+
+    fetch(datos.registroUrl, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+        },
+        body: cuerpo.toString()
+    }).then(function (respuesta) {
+        if (!respuesta.ok && window.console) {
+            console.warn("No se pudo registrar el historial del reporte.");
+        }
+    }).catch(function (error) {
+        if (window.console) {
+            console.warn("No se pudo registrar el historial del reporte.", error);
+        }
+    });
+}
+
+function normalizarFormatoReporte(accion) {
+    if (accion === "pdf") {
+        return "PDF";
+    }
+
+    if (accion === "excel") {
+        return "Excel";
+    }
+
+    if (accion === "csv") {
+        return "CSV";
+    }
+
+    return accion || "";
+}
+
+function obtenerFiltrosReporte(panel) {
+    const contenedor = panel.closest(".crud-contenedor") || document;
+    const campos = Array.from(contenedor.querySelectorAll(
+        ".buscar-registros input, .buscar-registros select, .busqueda-acciones input, .busqueda-acciones select"
+    ));
+    const filtros = [];
+
+    campos.forEach(function (campo) {
+        if (!campo || campo.type === "hidden" || campo.disabled) {
+            return;
+        }
+
+        const valor = obtenerValorFiltro(campo);
+
+        if (!valor) {
+            return;
+        }
+
+        filtros.push(obtenerEtiquetaFiltro(campo) + ": " + valor);
+    });
+
+    return filtros.join("; ");
+}
+
+function obtenerValorFiltro(campo) {
+    if (!campo) {
+        return "";
+    }
+
+    if (campo.tagName === "SELECT") {
+        const opcion = campo.options[campo.selectedIndex];
+        return opcion ? obtenerTexto(opcion) : "";
+    }
+
+    return campo.value ? campo.value.trim() : "";
+}
+
+function obtenerEtiquetaFiltro(campo) {
+    if (campo.id) {
+        const labels = Array.from(document.querySelectorAll("label"));
+        const etiqueta = labels.find(function (label) {
+            return label.getAttribute("for") === campo.id;
+        });
+
+        if (etiqueta) {
+            return obtenerTexto(etiqueta).replace(/:$/, "") || campo.id;
+        }
+    }
+
+    return campo.name || campo.id || "Filtro";
+}
 function descargarCsv(datos) {
     const lineas = [datos.encabezados].concat(datos.filas).map(function (fila) {
         return fila.map(escaparCsv).join(";");

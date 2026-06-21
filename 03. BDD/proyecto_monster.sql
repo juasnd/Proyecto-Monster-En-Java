@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 19-06-2026 a las 03:13:36
+-- Tiempo de generación: 21-06-2026 a las 15:32:05
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -316,17 +316,22 @@ CREATE TABLE `vw_empleados_sin_usuario` (
 CREATE TABLE `vw_menu_usuario` (
 `PEPER_CODIGO` char(10)
 ,`XEUSU_LOGIN` varchar(50)
-,`XEPER_CODIGO` mediumtext
-,`XEPER_DESCRI` mediumtext
+,`XEPER_CODIGO` char(8)
+,`XEPER_DESCRI` varchar(100)
 ,`XEOPC_CODIGO` char(3)
+,`XESIS_CODIGO` char(1)
+,`XEOPC_PADRE` char(3)
 ,`XEOPC_DESCRI` varchar(100)
+,`XEOPC_TIPO` char(1)
+,`XEOPC_NIVEL` int(11)
 ,`XEOPC_URL` varchar(150)
 ,`XEOPC_ICONO` varchar(50)
 ,`XEOPC_ORDEN` int(11)
-,`XEOXP_VER` varchar(1)
-,`XEOXP_CREAR` varchar(1)
-,`XEOXP_EDITAR` varchar(1)
-,`XEOXP_ELIMINAR` varchar(1)
+,`XEOPC_ESTADO` char(1)
+,`XEOXP_VER` char(1)
+,`XEOXP_CREAR` char(1)
+,`XEOXP_EDITAR` char(1)
+,`XEOXP_ELIMINAR` char(1)
 );
 
 -- --------------------------------------------------------
@@ -339,7 +344,10 @@ CREATE TABLE `vw_permisos_usuario` (
 `PEPER_CODIGO` char(10)
 ,`XEUSU_LOGIN` varchar(50)
 ,`XEOPC_CODIGO` char(3)
+,`XEOPC_PADRE` char(3)
 ,`XEOPC_DESCRI` varchar(100)
+,`XEOPC_TIPO` char(1)
+,`XEOPC_NIVEL` int(11)
 ,`XEOPC_URL` varchar(150)
 ,`PUEDE_VER` varchar(1)
 ,`PUEDE_CREAR` varchar(1)
@@ -472,7 +480,10 @@ INSERT INTO `xegen_codigo` (`XEGEN_TABLA`, `XEGEN_CAMPO`, `XEGEN_PREFIJO`, `XEGE
 CREATE TABLE `xeopc_opcion` (
   `XEOPC_CODIGO` char(3) NOT NULL,
   `XESIS_CODIGO` char(1) NOT NULL,
+  `XEOPC_PADRE` char(3) DEFAULT NULL,
   `XEOPC_DESCRI` varchar(100) NOT NULL,
+  `XEOPC_TIPO` char(1) NOT NULL DEFAULT 'O',
+  `XEOPC_NIVEL` int(11) NOT NULL DEFAULT 3,
   `XEOPC_URL` varchar(150) DEFAULT NULL,
   `XEOPC_ICONO` varchar(50) DEFAULT NULL,
   `XEOPC_ORDEN` int(11) DEFAULT 0,
@@ -483,17 +494,42 @@ CREATE TABLE `xeopc_opcion` (
 -- Volcado de datos para la tabla `xeopc_opcion`
 --
 
-INSERT INTO `xeopc_opcion` (`XEOPC_CODIGO`, `XESIS_CODIGO`, `XEOPC_DESCRI`, `XEOPC_URL`, `XEOPC_ICONO`, `XEOPC_ORDEN`, `XEOPC_ESTADO`) VALUES
-('CAR', 'M', 'Cargos', 'cargos.jsp', 'briefcase', 3, 'A'),
-('DEP', 'M', 'Departamentos', 'departamentos.jsp', 'building', 2, 'A'),
-('EMP', 'M', 'Empleados', 'empleados.jsp', 'users', 4, 'A'),
-('FAM', 'M', 'Familiares', 'familiares.jsp', 'family', 5, 'A'),
-('FOR', 'M', 'Formacion', 'formacion.jsp', 'graduation', 6, 'A'),
-('INI', 'M', 'Inicio', 'pagPrincipal.jsp', 'home', 1, 'A'),
-('OCP', 'M', 'Permisos', 'permisos.jsp', 'key', 9, 'A'),
-('PER', 'M', 'Perfiles', 'perfiles.jsp', 'shield', 8, 'A'),
-('RPT', 'M', 'Reportes', 'reportes.jsp', 'file', 10, 'A'),
-('USU', 'M', 'Usuarios', 'usuarios.jsp', 'user-lock', 7, 'A');
+INSERT INTO `xeopc_opcion` (`XEOPC_CODIGO`, `XESIS_CODIGO`, `XEOPC_PADRE`, `XEOPC_DESCRI`, `XEOPC_TIPO`, `XEOPC_NIVEL`, `XEOPC_URL`, `XEOPC_ICONO`, `XEOPC_ORDEN`, `XEOPC_ESTADO`) VALUES
+('AOP', 'M', 'SPR', 'Asignar opciones por perfil', 'O', 3, 'PermisoController', 'key', 2, 'A'),
+('AUP', 'M', 'SPR', 'Asignar usuarios a perfil', 'O', 3, 'UsuarioController', 'users', 1, 'A'),
+('CAR', 'M', 'PGB', 'Cargos', 'O', 3, 'cargos.jsp', 'briefcase', 2, 'A'),
+('DEP', 'M', 'PGB', 'Departamentos', 'O', 3, 'departamentos.jsp', 'building', 1, 'A'),
+('EMP', 'M', 'PGB', 'Empleados', 'O', 3, 'empleados.jsp', 'users', 3, 'A'),
+('FAM', 'M', NULL, 'Familiares', 'O', 3, 'familiares.jsp', 'family', 5, 'I'),
+('FGB', 'M', 'FIN', 'Gestión de tablas', 'G', 2, NULL, 'folder', 1, 'I'),
+('FIN', 'M', NULL, 'Finanzas', 'S', 1, NULL, 'bank', 2, 'I'),
+('FOR', 'M', NULL, 'Formacion', 'O', 3, 'formacion.jsp', 'graduation', 6, 'I'),
+('FPR', 'M', 'FIN', 'Procesos', 'G', 2, NULL, 'folder', 2, 'I'),
+('FRP', 'M', 'FIN', 'Reportes', 'G', 2, NULL, 'file', 3, 'I'),
+('GGB', 'M', 'GPR', 'Gestión de tablas', 'G', 2, NULL, 'folder', 1, 'I'),
+('GPC', 'M', 'GPR', 'Procesos', 'G', 2, NULL, 'folder', 2, 'I'),
+('GPR', 'M', NULL, 'Gestión de proyectos', 'S', 1, NULL, 'folder', 4, 'I'),
+('GRP', 'M', 'GPR', 'Reportes', 'G', 2, NULL, 'file', 3, 'I'),
+('INI', 'M', NULL, 'Inicio', 'O', 3, 'pagPrincipal.jsp', 'home', 1, 'A'),
+('OCP', 'M', 'SPR', 'Permisos', 'O', 3, 'permisos.jsp', 'key', 2, 'I'),
+('PER', 'M', 'SGB', 'Perfiles', 'O', 3, 'perfiles.jsp', 'shield', 2, 'A'),
+('PGB', 'M', 'PRS', 'Gestión de tablas', 'G', 2, NULL, 'folder', 1, 'A'),
+('PPR', 'M', 'PRS', 'Procesos', 'G', 2, NULL, 'folder', 2, 'I'),
+('PRP', 'M', 'PRS', 'Reportes', 'G', 2, NULL, 'file', 3, 'A'),
+('PRS', 'M', NULL, 'Personal', 'S', 1, NULL, 'users', 1, 'A'),
+('RCA', 'M', 'PRP', 'Reporte de cargos', 'O', 3, NULL, 'file', 2, 'A'),
+('RDE', 'M', 'PRP', 'Reporte de departamentos', 'O', 3, NULL, 'file', 1, 'A'),
+('REM', 'M', 'PRP', 'Reporte de empleados', 'O', 3, NULL, 'file', 3, 'A'),
+('RPF', 'M', 'SRP', 'Reporte de perfiles', 'O', 3, NULL, 'file', 2, 'A'),
+('RPM', 'M', 'SRP', 'Reporte de permisos', 'O', 3, NULL, 'file', 3, 'I'),
+('RPT', 'M', 'PRP', 'Reportes', 'O', 3, 'reportes.jsp', 'file', 1, 'I'),
+('RUS', 'M', 'SRP', 'Reporte de usuarios', 'O', 3, NULL, 'file', 1, 'A'),
+('SEG', 'M', NULL, 'Seguridad', 'S', 1, NULL, 'shield', 3, 'A'),
+('SGB', 'M', 'SEG', 'Gestión de tablas', 'G', 2, NULL, 'folder', 1, 'A'),
+('SIS', 'M', 'SGB', 'Sistemas', 'O', 3, NULL, 'server', 3, 'I'),
+('SPR', 'M', 'SEG', 'Procesos', 'G', 2, NULL, 'folder', 2, 'A'),
+('SRP', 'M', 'SEG', 'Reportes', 'G', 2, NULL, 'file', 3, 'I'),
+('USU', 'M', 'SGB', 'Usuarios', 'O', 3, 'usuarios.jsp', 'user-lock', 1, 'A');
 
 -- --------------------------------------------------------
 
@@ -517,29 +553,26 @@ CREATE TABLE `xeoxp_opcper` (
 --
 
 INSERT INTO `xeoxp_opcper` (`XEOPC_CODIGO`, `XEPER_CODIGO`, `XEOXP_FECASI`, `XEOXP_FECRET`, `XEOXP_VER`, `XEOXP_CREAR`, `XEOXP_EDITAR`, `XEOXP_ELIMINAR`) VALUES
-('CAR', 'ADMIN', '2026-06-15', NULL, 'S', 'S', 'S', 'S'),
-('CAR', 'RRHH', '2026-06-17', NULL, 'S', 'S', 'S', 'N'),
-('DEP', 'ADMIN', '2026-06-15', NULL, 'S', 'S', 'S', 'S'),
-('DEP', 'EMPLEADO', '2026-06-17', NULL, 'S', 'N', 'N', 'N'),
-('DEP', 'RRHH', '2026-06-17', NULL, 'S', 'S', 'S', 'N'),
-('EMP', 'ADMIN', '2026-06-15', NULL, 'S', 'S', 'S', 'S'),
-('EMP', 'RRHH', '2026-06-17', NULL, 'S', 'S', 'S', 'N'),
-('FAM', 'ADMIN', '2026-06-15', NULL, 'S', 'S', 'S', 'S'),
-('FAM', 'RRHH', '2026-06-17', NULL, 'S', 'S', 'S', 'N'),
-('FOR', 'ADMIN', '2026-06-15', NULL, 'S', 'S', 'S', 'S'),
-('FOR', 'RRHH', '2026-06-17', NULL, 'S', 'S', 'S', 'N'),
-('INI', 'ADMIN', '2026-06-15', NULL, 'S', 'S', 'S', 'S'),
-('INI', 'CLIENTE', '2026-06-17', NULL, 'S', 'N', 'N', 'N'),
-('INI', 'EMPLEADO', '2026-06-17', NULL, 'S', 'N', 'N', 'N'),
-('INI', 'INVITADO', '2026-06-17', NULL, 'S', 'N', 'N', 'N'),
-('INI', 'RRHH', '2026-06-17', NULL, 'S', 'N', 'N', 'N'),
-('OCP', 'ADMIN', '2026-06-15', NULL, 'S', 'S', 'S', 'S'),
-('PER', 'ADMIN', '2026-06-15', NULL, 'S', 'S', 'S', 'S'),
-('PER', 'PRUEBAS', '2026-06-17', NULL, 'S', 'N', 'N', 'N'),
-('RPT', 'ADMIN', '2026-06-15', NULL, 'S', 'S', 'S', 'S'),
-('RPT', 'RRHH', '2026-06-17', NULL, 'S', 'S', 'S', 'N'),
-('USU', 'ADMIN', '2026-06-15', NULL, 'S', 'S', 'S', 'S'),
-('USU', 'PRUEBAS', '2026-06-17', NULL, 'S', 'N', 'N', 'N');
+('AOP', 'ADMIN', '2026-06-21', NULL, 'S', 'S', 'S', 'S'),
+('AUP', 'ADMIN', '2026-06-21', NULL, 'S', 'S', 'S', 'S'),
+('CAR', 'ADMIN', '2026-06-21', NULL, 'S', 'S', 'S', 'S'),
+('DEP', 'ADMIN', '2026-06-21', NULL, 'S', 'S', 'S', 'S'),
+('DEP', 'EMPLEADO', '2026-06-20', NULL, 'S', 'S', 'S', 'S'),
+('EMP', 'ADMIN', '2026-06-21', NULL, 'S', 'S', 'S', 'S'),
+('PER', 'ADMIN', '2026-06-21', NULL, 'S', 'S', 'S', 'S'),
+('PGB', 'ADMIN', '2026-06-21', NULL, 'S', 'S', 'S', 'S'),
+('PGB', 'EMPLEADO', '2026-06-20', NULL, 'S', 'S', 'S', 'S'),
+('PRP', 'ADMIN', '2026-06-21', NULL, 'S', 'S', 'S', 'S'),
+('PRS', 'ADMIN', '2026-06-21', NULL, 'S', 'S', 'S', 'S'),
+('PRS', 'EMPLEADO', '2026-06-20', NULL, 'S', 'S', 'S', 'S'),
+('RCA', 'ADMIN', '2026-06-21', NULL, 'S', 'S', 'S', 'S'),
+('RDE', 'ADMIN', '2026-06-21', NULL, 'S', 'S', 'S', 'S'),
+('REM', 'ADMIN', '2026-06-21', NULL, 'S', 'S', 'S', 'S'),
+('SEG', 'ADMIN', '2026-06-21', NULL, 'S', 'S', 'S', 'S'),
+('SGB', 'ADMIN', '2026-06-21', NULL, 'S', 'S', 'S', 'S'),
+('SGB', 'PRUEBAS', '2026-06-20', NULL, 'S', 'S', 'S', 'S'),
+('SPR', 'ADMIN', '2026-06-21', NULL, 'S', 'S', 'S', 'S'),
+('USU', 'ADMIN', '2026-06-21', NULL, 'S', 'S', 'S', 'S');
 
 -- --------------------------------------------------------
 
@@ -647,10 +680,10 @@ CREATE TABLE `xeusu_usuari` (
 
 INSERT INTO `xeusu_usuari` (`PEPER_CODIGO`, `XEUSU_PASWD`, `XEUSU_FECCRE`, `XEUSU_FECMOD`, `XEUSU_PIEFIR`, `XEUSU_LOGIN`, `XEEST_CODIGO`, `XEUSU_TOKEN_REC`, `XEUSU_FEC_EXP_TOK`, `XEUSU_INTENTOS`, `XEUSU_CAMBIO_CLAVE`, `XEUSU_ULTIMO_ACCESO`, `XEUSU_BLOQUEADO_HASTA`, `XEUSU_ALGORITMO`, `XEUSU_OBSERVACION`) VALUES
 ('ASD', 'e10adc3949ba59abbe56e057f20f883e', '2026-06-15 22:52:11', '2026-06-15 22:52:11', 'GUTIERREZ - LANDAZURI - LEITON', '1726871526', 'A', NULL, NULL, 0, 'N', '2026-06-18 00:48:27', NULL, 'MD5', NULL),
-('PER0000001', '81dc9bdb52d04dc20036dbd8313ed055', '2026-05-20 07:51:04', '2026-05-20 07:51:04', 'GUTIERREZ - LANDAZURI - LEITON', 'monster', 'A', NULL, NULL, 0, 'N', '2026-06-19 01:10:11', NULL, 'MD5', NULL),
+('PER0000001', '81dc9bdb52d04dc20036dbd8313ed055', '2026-05-20 07:51:04', '2026-05-20 07:51:04', 'GUTIERREZ - LANDAZURI - LEITON', 'monster', 'A', NULL, NULL, 0, 'N', '2026-06-21 13:07:03', NULL, 'MD5', NULL),
 ('PER0000011', '81dc9bdb52d04dc20036dbd8313ed055', '2026-06-17 02:13:27', '2026-06-17 02:13:27', 'GUTIERREZ - LANDAZURI - LEITON', '1751483627', 'A', NULL, NULL, 0, 'N', '2026-06-17 02:51:27', NULL, 'MD5', NULL),
 ('PER0000012', '5940f48049a8dba5a721057eb72b422b', '2026-06-18 00:49:26', '2026-06-18 00:49:26', 'GUTIERREZ - LANDAZURI - LEITON', 'Taty123', 'A', NULL, NULL, 0, 'N', '2026-06-18 00:50:42', NULL, 'MD5', NULL),
-('PER2', '81dc9bdb52d04dc20036dbd8313ed055', '2026-06-17 03:01:04', '2026-06-17 03:01:04', 'GUTIERREZ - LANDAZURI - LEITON', '0502080161', 'B', NULL, NULL, 0, 'N', '2026-06-17 13:11:34', NULL, 'MD5', NULL);
+('PER2', 'e10adc3949ba59abbe56e057f20f883e', '2026-06-17 03:01:04', '2026-06-17 03:01:04', 'GUTIERREZ - LANDAZURI - LEITON', '0502080161', 'A', NULL, NULL, 0, 'N', '2026-06-19 01:38:27', NULL, 'MD5', NULL);
 
 -- --------------------------------------------------------
 
@@ -675,7 +708,7 @@ INSERT INTO `xeuxp_usuper` (`PEPER_CODIGO`, `XEUSU_LOGIN`, `XEPER_CODIGO`, `XEUX
 ('PER0000001', 'monster', 'ADMIN', '2026-06-15', NULL),
 ('PER0000011', '1751483627', 'ADMIN', '2026-06-17', NULL),
 ('PER0000012', 'Taty123', 'INVITADO', '2026-06-18', NULL),
-('PER2', '0502080161', 'RRHH', '2026-06-17', NULL);
+('PER2', '0502080161', 'CLIENTE', '2026-06-19', NULL);
 
 -- --------------------------------------------------------
 
@@ -693,7 +726,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `vw_menu_usuario`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_menu_usuario`  AS SELECT `u`.`PEPER_CODIGO` AS `PEPER_CODIGO`, `u`.`XEUSU_LOGIN` AS `XEUSU_LOGIN`, group_concat(distinct `pf`.`XEPER_CODIGO` order by `pf`.`XEPER_CODIGO` ASC separator ',') AS `XEPER_CODIGO`, group_concat(distinct `pf`.`XEPER_DESCRI` order by `pf`.`XEPER_DESCRI` ASC separator ', ') AS `XEPER_DESCRI`, `op`.`XEOPC_CODIGO` AS `XEOPC_CODIGO`, `op`.`XEOPC_DESCRI` AS `XEOPC_DESCRI`, `op`.`XEOPC_URL` AS `XEOPC_URL`, `op`.`XEOPC_ICONO` AS `XEOPC_ICONO`, `op`.`XEOPC_ORDEN` AS `XEOPC_ORDEN`, CASE WHEN max(`oxp`.`XEOXP_VER` = 'S') = 1 THEN 'S' ELSE 'N' END AS `XEOXP_VER`, CASE WHEN max(`oxp`.`XEOXP_CREAR` = 'S') = 1 THEN 'S' ELSE 'N' END AS `XEOXP_CREAR`, CASE WHEN max(`oxp`.`XEOXP_EDITAR` = 'S') = 1 THEN 'S' ELSE 'N' END AS `XEOXP_EDITAR`, CASE WHEN max(`oxp`.`XEOXP_ELIMINAR` = 'S') = 1 THEN 'S' ELSE 'N' END AS `XEOXP_ELIMINAR` FROM ((((`xeusu_usuari` `u` join `xeuxp_usuper` `up` on(`u`.`PEPER_CODIGO` = `up`.`PEPER_CODIGO` and `u`.`XEUSU_LOGIN` = `up`.`XEUSU_LOGIN` and `up`.`XEUXP_FECRET` is null)) join `xeper_perfil` `pf` on(`up`.`XEPER_CODIGO` = `pf`.`XEPER_CODIGO` and `pf`.`XEPER_ESTADO` = 'A')) join `xeoxp_opcper` `oxp` on(`pf`.`XEPER_CODIGO` = `oxp`.`XEPER_CODIGO` and `oxp`.`XEOXP_FECRET` is null)) join `xeopc_opcion` `op` on(`oxp`.`XEOPC_CODIGO` = `op`.`XEOPC_CODIGO` and `op`.`XEOPC_ESTADO` = 'A')) WHERE `u`.`XEEST_CODIGO` = 'A' GROUP BY `u`.`PEPER_CODIGO`, `u`.`XEUSU_LOGIN`, `op`.`XEOPC_CODIGO`, `op`.`XEOPC_DESCRI`, `op`.`XEOPC_URL`, `op`.`XEOPC_ICONO`, `op`.`XEOPC_ORDEN` HAVING max(`oxp`.`XEOXP_VER` = 'S') = 1 ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_menu_usuario`  AS SELECT DISTINCT `u`.`PEPER_CODIGO` AS `PEPER_CODIGO`, `u`.`XEUSU_LOGIN` AS `XEUSU_LOGIN`, `pf`.`XEPER_CODIGO` AS `XEPER_CODIGO`, `pf`.`XEPER_DESCRI` AS `XEPER_DESCRI`, `op`.`XEOPC_CODIGO` AS `XEOPC_CODIGO`, `op`.`XESIS_CODIGO` AS `XESIS_CODIGO`, `op`.`XEOPC_PADRE` AS `XEOPC_PADRE`, `op`.`XEOPC_DESCRI` AS `XEOPC_DESCRI`, `op`.`XEOPC_TIPO` AS `XEOPC_TIPO`, `op`.`XEOPC_NIVEL` AS `XEOPC_NIVEL`, `op`.`XEOPC_URL` AS `XEOPC_URL`, `op`.`XEOPC_ICONO` AS `XEOPC_ICONO`, `op`.`XEOPC_ORDEN` AS `XEOPC_ORDEN`, `op`.`XEOPC_ESTADO` AS `XEOPC_ESTADO`, `oxp`.`XEOXP_VER` AS `XEOXP_VER`, `oxp`.`XEOXP_CREAR` AS `XEOXP_CREAR`, `oxp`.`XEOXP_EDITAR` AS `XEOXP_EDITAR`, `oxp`.`XEOXP_ELIMINAR` AS `XEOXP_ELIMINAR` FROM ((((`xeusu_usuari` `u` join `xeuxp_usuper` `up` on(`u`.`PEPER_CODIGO` = `up`.`PEPER_CODIGO` and `u`.`XEUSU_LOGIN` = `up`.`XEUSU_LOGIN` and `up`.`XEUXP_FECRET` is null)) join `xeper_perfil` `pf` on(`up`.`XEPER_CODIGO` = `pf`.`XEPER_CODIGO` and coalesce(`pf`.`XEPER_ESTADO`,'A') = 'A')) join `xeoxp_opcper` `oxp` on(`pf`.`XEPER_CODIGO` = `oxp`.`XEPER_CODIGO` and `oxp`.`XEOXP_FECRET` is null and coalesce(`oxp`.`XEOXP_VER`,'S') = 'S')) join `xeopc_opcion` `op` on(`oxp`.`XEOPC_CODIGO` = `op`.`XEOPC_CODIGO` and coalesce(`op`.`XEOPC_ESTADO`,'A') = 'A')) WHERE coalesce(`u`.`XEEST_CODIGO`,'A') = 'A' ;
 
 -- --------------------------------------------------------
 
@@ -702,7 +735,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `vw_permisos_usuario`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_permisos_usuario`  AS SELECT `u`.`PEPER_CODIGO` AS `PEPER_CODIGO`, `u`.`XEUSU_LOGIN` AS `XEUSU_LOGIN`, `op`.`XEOPC_CODIGO` AS `XEOPC_CODIGO`, `op`.`XEOPC_DESCRI` AS `XEOPC_DESCRI`, `op`.`XEOPC_URL` AS `XEOPC_URL`, CASE WHEN max(`oxp`.`XEOXP_VER` = 'S') = 1 THEN 'S' ELSE 'N' END AS `PUEDE_VER`, CASE WHEN max(`oxp`.`XEOXP_CREAR` = 'S') = 1 THEN 'S' ELSE 'N' END AS `PUEDE_CREAR`, CASE WHEN max(`oxp`.`XEOXP_EDITAR` = 'S') = 1 THEN 'S' ELSE 'N' END AS `PUEDE_EDITAR`, CASE WHEN max(`oxp`.`XEOXP_ELIMINAR` = 'S') = 1 THEN 'S' ELSE 'N' END AS `PUEDE_ELIMINAR` FROM ((((`xeusu_usuari` `u` join `xeuxp_usuper` `up` on(`u`.`PEPER_CODIGO` = `up`.`PEPER_CODIGO` and `u`.`XEUSU_LOGIN` = `up`.`XEUSU_LOGIN` and `up`.`XEUXP_FECRET` is null)) join `xeper_perfil` `pf` on(`up`.`XEPER_CODIGO` = `pf`.`XEPER_CODIGO` and `pf`.`XEPER_ESTADO` = 'A')) join `xeoxp_opcper` `oxp` on(`pf`.`XEPER_CODIGO` = `oxp`.`XEPER_CODIGO` and `oxp`.`XEOXP_FECRET` is null)) join `xeopc_opcion` `op` on(`oxp`.`XEOPC_CODIGO` = `op`.`XEOPC_CODIGO` and `op`.`XEOPC_ESTADO` = 'A')) WHERE `u`.`XEEST_CODIGO` = 'A' GROUP BY `u`.`PEPER_CODIGO`, `u`.`XEUSU_LOGIN`, `op`.`XEOPC_CODIGO`, `op`.`XEOPC_DESCRI`, `op`.`XEOPC_URL` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_permisos_usuario`  AS SELECT `u`.`PEPER_CODIGO` AS `PEPER_CODIGO`, `u`.`XEUSU_LOGIN` AS `XEUSU_LOGIN`, `op`.`XEOPC_CODIGO` AS `XEOPC_CODIGO`, `op`.`XEOPC_PADRE` AS `XEOPC_PADRE`, `op`.`XEOPC_DESCRI` AS `XEOPC_DESCRI`, `op`.`XEOPC_TIPO` AS `XEOPC_TIPO`, `op`.`XEOPC_NIVEL` AS `XEOPC_NIVEL`, `op`.`XEOPC_URL` AS `XEOPC_URL`, CASE WHEN max(`oxp`.`XEOXP_VER` = 'S') = 1 THEN 'S' ELSE 'N' END AS `PUEDE_VER`, CASE WHEN max(`oxp`.`XEOXP_CREAR` = 'S') = 1 THEN 'S' ELSE 'N' END AS `PUEDE_CREAR`, CASE WHEN max(`oxp`.`XEOXP_EDITAR` = 'S') = 1 THEN 'S' ELSE 'N' END AS `PUEDE_EDITAR`, CASE WHEN max(`oxp`.`XEOXP_ELIMINAR` = 'S') = 1 THEN 'S' ELSE 'N' END AS `PUEDE_ELIMINAR` FROM ((((`xeusu_usuari` `u` join `xeuxp_usuper` `up` on(`u`.`PEPER_CODIGO` = `up`.`PEPER_CODIGO` and `u`.`XEUSU_LOGIN` = `up`.`XEUSU_LOGIN` and `up`.`XEUXP_FECRET` is null)) join `xeper_perfil` `pf` on(`up`.`XEPER_CODIGO` = `pf`.`XEPER_CODIGO` and `pf`.`XEPER_ESTADO` = 'A')) join `xeoxp_opcper` `oxp` on(`pf`.`XEPER_CODIGO` = `oxp`.`XEPER_CODIGO` and `oxp`.`XEOXP_FECRET` is null)) join `xeopc_opcion` `op` on(`oxp`.`XEOPC_CODIGO` = `op`.`XEOPC_CODIGO` and `op`.`XEOPC_ESTADO` = 'A')) WHERE `u`.`XEEST_CODIGO` = 'A' GROUP BY `u`.`PEPER_CODIGO`, `u`.`XEUSU_LOGIN`, `op`.`XEOPC_CODIGO`, `op`.`XEOPC_PADRE`, `op`.`XEOPC_DESCRI`, `op`.`XEOPC_TIPO`, `op`.`XEOPC_NIVEL`, `op`.`XEOPC_URL` ;
 
 -- --------------------------------------------------------
 

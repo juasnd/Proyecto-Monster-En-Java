@@ -1,5 +1,7 @@
 package ec.edu.gutierrez.landazuri.leiton.controlador;
 
+import ec.edu.gutierrez.landazuri.leiton.dao.PermisoDAO;
+
 import ec.edu.gutierrez.landazuri.leiton.modelo.Departamento;
 import java.io.IOException;
 import java.util.List;
@@ -12,6 +14,8 @@ import jakarta.servlet.http.HttpSession;
 
 @WebServlet(name = "DepartamentoController", urlPatterns = {"/DepartamentoController"})
 public class DepartamentoController extends HttpServlet {
+
+    private final PermisoDAO permisoDAO = new PermisoDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -84,8 +88,25 @@ public class DepartamentoController extends HttpServlet {
     private void cargarLista(HttpServletRequest request, BDController bdc) {
         List<Departamento> lista = bdc.listarDepartamentos();
         request.setAttribute("departamentos", lista);
+        cargarPermisoReporte(request);
     }
 
+
+    private void cargarPermisoReporte(HttpServletRequest request) {
+        String perfilCodigo = obtenerPerfilCodigo(request);
+        boolean permitido = permisoDAO.tienePermiso(perfilCodigo, "RDE");
+        request.setAttribute("puedeReporteDepartamentos", permitido);
+    }
+
+    private String obtenerPerfilCodigo(HttpServletRequest request) {
+        HttpSession sesion = request.getSession(false);
+
+        if (sesion == null || sesion.getAttribute("perfilCodigo") == null) {
+            return "";
+        }
+
+        return String.valueOf(sesion.getAttribute("perfilCodigo"));
+    }
     private void guardar(HttpServletRequest request, HttpServletResponse response, BDController bdc)
             throws ServletException, IOException {
 

@@ -1,5 +1,7 @@
 package ec.edu.gutierrez.landazuri.leiton.controlador;
 
+import ec.edu.gutierrez.landazuri.leiton.dao.PermisoDAO;
+
 import ec.edu.gutierrez.landazuri.leiton.dao.EmpleadoDAO;
 import ec.edu.gutierrez.landazuri.leiton.dao.FamiliarDAO;
 import ec.edu.gutierrez.landazuri.leiton.modelo.Cargo;
@@ -49,6 +51,7 @@ public class EmpleadoController extends HttpServlet {
     private static final List<String> FOTO_MIME_VALIDOS = Arrays.asList("image/jpeg", "image/png", "image/webp");
 
     private final EmpleadoDAO empleadoDAO = new EmpleadoDAO();
+    private final PermisoDAO permisoDAO = new PermisoDAO();
     private final FamiliarDAO familiarDAO = new FamiliarDAO();
 
     @Override
@@ -809,8 +812,25 @@ public class EmpleadoController extends HttpServlet {
         request.setAttribute("sexos", empleadoDAO.listarSexos());
         request.setAttribute("estadosCiviles", empleadoDAO.listarEstadosCiviles());
         request.setAttribute("parentescos", familiarDAO.listarParentescos());
+        cargarPermisoReporte(request);
     }
 
+
+    private void cargarPermisoReporte(HttpServletRequest request) {
+        String perfilCodigo = obtenerPerfilCodigo(request);
+        boolean permitido = permisoDAO.tienePermiso(perfilCodigo, "REM");
+        request.setAttribute("puedeReporteEmpleados", permitido);
+    }
+
+    private String obtenerPerfilCodigo(HttpServletRequest request) {
+        HttpSession sesion = request.getSession(false);
+
+        if (sesion == null || sesion.getAttribute("perfilCodigo") == null) {
+            return "";
+        }
+
+        return String.valueOf(sesion.getAttribute("perfilCodigo"));
+    }
     private void volverAlFormulario(HttpServletRequest request, HttpServletResponse response,
             String modo, Empleado empleado, String error) throws ServletException, IOException {
         request.setAttribute("modo", modo);

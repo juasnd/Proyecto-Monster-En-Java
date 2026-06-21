@@ -1,5 +1,7 @@
 package ec.edu.gutierrez.landazuri.leiton.controlador;
 
+import ec.edu.gutierrez.landazuri.leiton.dao.PermisoDAO;
+
 import ec.edu.gutierrez.landazuri.leiton.dao.PerfilDAO;
 import ec.edu.gutierrez.landazuri.leiton.dao.UsuarioDAO;
 import ec.edu.gutierrez.landazuri.leiton.modelo.Persona;
@@ -10,12 +12,14 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet(name = "UsuarioController", urlPatterns = {"/UsuarioController"})
 public class UsuarioController extends HttpServlet {
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
     private final PerfilDAO perfilDAO = new PerfilDAO();
+    private final PermisoDAO permisoDAO = new PermisoDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -161,8 +165,25 @@ public class UsuarioController extends HttpServlet {
         request.setAttribute("personasSinUsuario", usuarioDAO.listarPersonasSinUsuario());
         request.setAttribute("empleadosSinUsuario", usuarioDAO.listarPersonasSinUsuario());
         request.setAttribute("claveTemporal", UsuarioDAO.CONTRASENA_TEMPORAL);
+        cargarPermisoReporte(request);
     }
 
+
+    private void cargarPermisoReporte(HttpServletRequest request) {
+        String perfilCodigo = obtenerPerfilCodigo(request);
+        boolean permitido = permisoDAO.tienePermiso(perfilCodigo, "RUS");
+        request.setAttribute("puedeReporteUsuarios", permitido);
+    }
+
+    private String obtenerPerfilCodigo(HttpServletRequest request) {
+        HttpSession sesion = request.getSession(false);
+
+        if (sesion == null || sesion.getAttribute("perfilCodigo") == null) {
+            return "";
+        }
+
+        return String.valueOf(sesion.getAttribute("perfilCodigo"));
+    }
     private String valor(HttpServletRequest request, String nombre) {
         String valor = request.getParameter(nombre);
         return valor == null ? "" : valor.trim();

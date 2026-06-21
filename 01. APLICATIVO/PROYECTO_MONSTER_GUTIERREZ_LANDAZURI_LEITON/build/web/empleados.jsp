@@ -173,6 +173,7 @@
     List<Catalogo> sexos = (List<Catalogo>) request.getAttribute("sexos");
     List<Catalogo> estadosCiviles = (List<Catalogo>) request.getAttribute("estadosCiviles");
     List<Parentesco> parentescos = (List<Parentesco>) request.getAttribute("parentescos");
+    boolean puedeReporteEmpleados = Boolean.TRUE.equals(request.getAttribute("puedeReporteEmpleados"));
     List<Familiar> familiaresForm = empleadoForm.getFamiliares();
     List<Formacion> formacionesForm = empleadoForm.getFormaciones();
 
@@ -280,14 +281,17 @@
                             Mostrar todos
                         </a>
 
-                        <button type="button" class="btn-crud reporte" data-reporte-toggle="reporteEmpleados">
-                            Reportes
-                        </button>
+                        <% if (puedeReporteEmpleados) { %>
+                            <button type="button" class="btn-crud reporte" data-reporte-toggle="reporteEmpleados">
+                                Reportes
+                            </button>
+                        <% } %>
                     </div>
                 </form>
 
 
 
+                <% if (puedeReporteEmpleados) { %>
                 <section id="reporteEmpleados"
                          class="reporte-panel"
                          data-reporte-panel
@@ -296,6 +300,9 @@
                          data-reporte-encabezados="Nombre completo|Celular|Correo|Departamento|Cargo"
                          data-reporte-titulo="Reporte de Empleados"
                          data-reporte-archivo="reporte_empleados"
+                         data-reporte-codigo="REM"
+                         data-reporte-modulo="Empleados"
+                         data-reporte-registro-url="${pageContext.request.contextPath}/ReporteController"
                          hidden>
                     <div class="reporte-panel-header">
                         <div>
@@ -328,6 +335,7 @@
                         </table>
                     </div>
                 </section>
+                <% } %>
 
                 <div class="tabla-contenedor tabla-clara tabla-empleados">
                     <table
@@ -1174,6 +1182,6 @@
 
         <script src="${pageContext.request.contextPath}/js/empleados.js?v=20260616-empleados1" defer></script>
         <script src="${pageContext.request.contextPath}/js/paginacion.js?v=20260611-pag1" defer></script>
-        <script src="${pageContext.request.contextPath}/js/reportes.js?v=20260611-pag1" defer></script>
+        <script src="${pageContext.request.contextPath}/js/reportes.js?v=20260621-hist1" defer></script>
     </body>
 </html>

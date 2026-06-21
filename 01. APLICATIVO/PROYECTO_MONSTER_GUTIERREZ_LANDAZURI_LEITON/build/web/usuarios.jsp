@@ -99,6 +99,7 @@
     List<UsuarioPerfil> usuarios = (List<UsuarioPerfil>) request.getAttribute("usuarios");
     List<Perfil> perfiles = (List<Perfil>) request.getAttribute("perfiles");
     List<Persona> personasSinUsuario = (List<Persona>) request.getAttribute("personasSinUsuario");
+    boolean puedeReporteUsuarios = Boolean.TRUE.equals(request.getAttribute("puedeReporteUsuarios"));
 
     if (claveTemporal == null) {
         claveTemporal = "Monster2026";
@@ -153,6 +154,11 @@
                 <div class="crud-toolbar usuarios-toolbar-mejorada">
                     <div class="crud-toolbar-left usuarios-toolbar-left">
                         <a href="${pageContext.request.contextPath}/UsuarioController" class="btn-crud celeste">Recargar</a>
+                        <% if (puedeReporteUsuarios) { %>
+                            <button type="button" class="btn-crud reporte" data-reporte-toggle="reporteUsuarios">
+                                Reportes
+                            </button>
+                        <% } %>
                     </div>
 
                     <div class="usuarios-filtros">
@@ -163,6 +169,48 @@
                     </div>
                 </div>
 
+
+                <% if (puedeReporteUsuarios) { %>
+                    <section id="reporteUsuarios"
+                             class="reporte-panel"
+                             data-reporte-panel
+                             data-reporte-tabla="tablaUsuarios"
+                             data-reporte-columnas="0,1,2,3"
+                             data-reporte-encabezados="Cuenta|Tipo|Perfil|Estado"
+                             data-reporte-titulo="Reporte de Usuarios"
+                             data-reporte-archivo="reporte_usuarios"
+                             data-reporte-codigo="RUS"
+                             data-reporte-modulo="Usuarios"
+                             data-reporte-registro-url="${pageContext.request.contextPath}/ReporteController"
+                             hidden>
+                        <div class="reporte-panel-header">
+                            <div>
+                                <h3>Reportes de Usuarios</h3>
+                                <p>Vista previa generada con la informacion visible del modulo.</p>
+                            </div>
+                            <div class="reporte-meta">
+                                <span>Registros: <strong data-reporte-total>0</strong></span>
+                                <span>Fecha: <strong data-reporte-fecha></strong></span>
+                            </div>
+                        </div>
+
+                        <div class="reporte-acciones">
+                            <button type="button" class="btn-crud celeste" data-reporte-accion="actualizar">
+                                Vista previa
+                            </button>
+                            <button type="button" class="btn-crud reporte" data-reporte-accion="pdf">PDF</button>
+                            <button type="button" class="btn-crud reporte" data-reporte-accion="excel">Excel</button>
+                            <button type="button" class="btn-crud reporte" data-reporte-accion="csv">CSV</button>
+                        </div>
+
+                        <div class="tabla-contenedor tabla-clara reporte-preview">
+                            <table class="tabla-crud" data-reporte-preview>
+                                <thead></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </section>
+                <% } %>
                 <div class="tabla-contenedor tabla-clara tabla-seguridad tabla-usuarios-simple">
                     <table class="tabla-crud" id="tablaUsuarios" data-paginacion="true" data-paginacion-tamanio="3">
                         <thead>
@@ -486,5 +534,6 @@
 
         <script src="${pageContext.request.contextPath}/js/usuarios.js?v=20260617-usuarios-fase1" defer></script>
         <script src="${pageContext.request.contextPath}/js/paginacion.js?v=20260611-pag1" defer></script>
+        <script src="${pageContext.request.contextPath}/js/reportes.js?v=20260621-hist1" defer></script>
     </body>
 </html>

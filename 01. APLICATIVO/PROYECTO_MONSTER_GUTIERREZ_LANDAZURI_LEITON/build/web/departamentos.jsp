@@ -27,6 +27,7 @@
     Departamento departamentoVer = (Departamento) request.getAttribute("departamentoVer");
 
     List<Departamento> departamentos = (List<Departamento>) request.getAttribute("departamentos");
+    boolean puedeReporteDepartamentos = Boolean.TRUE.equals(request.getAttribute("puedeReporteDepartamentos"));
 
     if (modo == null) {
         modo = "listar";
@@ -91,9 +92,11 @@
                             Recargar
                         </a>
 
-                        <button type="button" class="btn-crud reporte" data-reporte-toggle="reporteDepartamentos">
-                            Reportes
-                        </button>
+                        <% if (puedeReporteDepartamentos) { %>
+                            <button type="button" class="btn-crud reporte" data-reporte-toggle="reporteDepartamentos">
+                                Reportes
+                            </button>
+                        <% } %>
                     </div>
 
                     <div class="buscar-registros">
@@ -104,6 +107,7 @@
 
 
 
+                <% if (puedeReporteDepartamentos) { %>
                 <section id="reporteDepartamentos"
                          class="reporte-panel"
                          data-reporte-panel
@@ -112,6 +116,9 @@
                          data-reporte-encabezados="Codigo|Descripcion"
                          data-reporte-titulo="Reporte de Departamentos"
                          data-reporte-archivo="reporte_departamentos"
+                         data-reporte-codigo="RDE"
+                         data-reporte-modulo="Departamentos"
+                         data-reporte-registro-url="${pageContext.request.contextPath}/ReporteController"
                          hidden>
                     <div class="reporte-panel-header">
                         <div>
@@ -144,6 +151,7 @@
                         </table>
                     </div>
                 </section>
+                <% } %>
 
                 <% if ("nuevo".equals(modo)) { %>
                     <div class="form-crud-box">
@@ -328,7 +336,7 @@
         </main>
         <script src="${pageContext.request.contextPath}/js/departamentos.js" defer></script>
         <script src="${pageContext.request.contextPath}/js/paginacion.js?v=20260611-pag1" defer></script>
-        <script src="${pageContext.request.contextPath}/js/reportes.js?v=20260611-pag1" defer></script>
+        <script src="${pageContext.request.contextPath}/js/reportes.js?v=20260621-hist1" defer></script>
 
     </body>
 </html>

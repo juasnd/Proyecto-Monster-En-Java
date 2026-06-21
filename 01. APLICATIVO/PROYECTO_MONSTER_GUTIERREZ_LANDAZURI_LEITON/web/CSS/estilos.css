@@ -2958,3 +2958,69 @@ body.usuario-modal-abierto {
     padding: 12px 8px 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
+/* =====================================================
+   HISTORIAL DE REPORTES
+===================================================== */
+.reportes-page {
+    max-width: 1320px;
+}
+
+.reportes-page .tabla-contenedor {
+    overflow-x: auto;
+}
+
+.reporte-detalle-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.reporte-detalle-grid p {
+    min-height: 64px;
+    padding: 12px;
+    border: 1px solid #dfe5ea;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+.reporte-detalle-grid span {
+    display: block;
+    margin-bottom: 6px;
+    color: #607d8b;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.reporte-detalle-grid .detalle-wide {
+    grid-column: span 2;
+}
+
+.reporte-detalle-grid strong {
+    color: #263238;
+    font-size: 14px;
+    font-weight: 900;
+    overflow-wrap: anywhere;
+}
+
+.acciones-reportes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.form-eliminar-historial {
+    display: inline-flex;
+}
+
+@media (max-width: 900px) {
+    .reporte-detalle-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 520px) {
+    .reporte-detalle-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -49,7 +49,9 @@ public class SeguridadFilter implements Filter {
             return;
         }
 
-        if (!esRutaInternaSiemprePermitida(ruta) && !tienePermiso(sesion, ruta)) {
+        if (!esRegistroHistorialReporte(httpRequest)
+                && !esRutaInternaSiemprePermitida(ruta)
+                && !tienePermiso(sesion, ruta)) {
             httpResponse.sendRedirect(httpRequest.getContextPath() + "/accesoDenegado.jsp");
             return;
         }
@@ -81,6 +83,10 @@ public class SeguridadFilter implements Filter {
                 || "/CambiarClaveController".equals(ruta)
                 || "/Logout".equals(ruta)
                 || "/accesoDenegado.jsp".equals(ruta);
+    }
+    private boolean esRegistroHistorialReporte(HttpServletRequest request) {
+        return "/ReporteController".equals(request.getServletPath())
+                && "registrar".equalsIgnoreCase(request.getParameter("accion"));
     }
 
     private boolean tienePermiso(HttpSession sesion, String ruta) {
@@ -155,6 +161,9 @@ public class SeguridadFilter implements Filter {
         if ("permisos.jsp".equals(limpia)) {
             return "PermisoController";
         }
+        if ("reportes.jsp".equals(limpia)) {
+            return "ReporteController";
+        }
 
         if ("opciones.jsp".equals(limpia)) {
             return "OpcionController";
@@ -190,6 +199,9 @@ public class SeguridadFilter implements Filter {
 
         if ("PermisoController".equals(ruta)) {
             return "permisos.jsp";
+        }
+        if ("ReporteController".equals(ruta)) {
+            return "reportes.jsp";
         }
 
         if ("OpcionController".equals(ruta)) {

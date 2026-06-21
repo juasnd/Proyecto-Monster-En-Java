@@ -1,5 +1,7 @@
 package ec.edu.gutierrez.landazuri.leiton.controlador;
 
+import ec.edu.gutierrez.landazuri.leiton.dao.PermisoDAO;
+
 import ec.edu.gutierrez.landazuri.leiton.modelo.Cargo;
 import ec.edu.gutierrez.landazuri.leiton.modelo.Departamento;
 import java.io.IOException;
@@ -13,6 +15,8 @@ import jakarta.servlet.http.HttpSession;
 
 @WebServlet(name = "CargoController", urlPatterns = {"/CargoController"})
 public class CargoController extends HttpServlet {
+
+    private final PermisoDAO permisoDAO = new PermisoDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -70,9 +74,26 @@ public class CargoController extends HttpServlet {
     private void cargarLista(HttpServletRequest request, BDController bdc) {
         request.setAttribute("cargos", bdc.listarCargos());
         // ¡ESTO ES CLAVE PARA EL COMBOBOX! Enviamos la lista de departamentos siempre.
-        request.setAttribute("departamentos", bdc.listarDepartamentos()); 
+        request.setAttribute("departamentos", bdc.listarDepartamentos());
+        cargarPermisoReporte(request);
     }
 
+
+    private void cargarPermisoReporte(HttpServletRequest request) {
+        String perfilCodigo = obtenerPerfilCodigo(request);
+        boolean permitido = permisoDAO.tienePermiso(perfilCodigo, "RCA");
+        request.setAttribute("puedeReporteCargos", permitido);
+    }
+
+    private String obtenerPerfilCodigo(HttpServletRequest request) {
+        HttpSession sesion = request.getSession(false);
+
+        if (sesion == null || sesion.getAttribute("perfilCodigo") == null) {
+            return "";
+        }
+
+        return String.valueOf(sesion.getAttribute("perfilCodigo"));
+    }
     private void guardar(HttpServletRequest request, HttpServletResponse response, BDController bdc)
             throws ServletException, IOException {
         String depCodigo = request.getParameter("pedepCodigo");

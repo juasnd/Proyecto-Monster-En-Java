@@ -43,6 +43,7 @@
     String error = (String) request.getAttribute("error");
     Perfil perfilEditar = (Perfil) request.getAttribute("perfilEditar");
     List<Perfil> perfiles = (List<Perfil>) request.getAttribute("perfiles");
+    boolean puedeReportePerfiles = Boolean.TRUE.equals(request.getAttribute("puedeReportePerfiles"));
 
     if (modo == null) {
         modo = "listar";
@@ -86,6 +87,11 @@
                     <div class="crud-toolbar-left">
                         <a href="${pageContext.request.contextPath}/PerfilController?accion=nuevo" class="btn-crud verde">+ Nuevo perfil</a>
                         <a href="${pageContext.request.contextPath}/PerfilController" class="btn-crud celeste">Recargar</a>
+                        <% if (puedeReportePerfiles) { %>
+                            <button type="button" class="btn-crud reporte" data-reporte-toggle="reportePerfiles">
+                                Reportes
+                            </button>
+                        <% } %>
                     </div>
 
                     <div class="buscar-registros">
@@ -138,6 +144,48 @@
                     </div>
                 <% } %>
 
+
+                <% if (puedeReportePerfiles) { %>
+                    <section id="reportePerfiles"
+                             class="reporte-panel"
+                             data-reporte-panel
+                             data-reporte-tabla="tablaPerfiles"
+                             data-reporte-columnas="0,1,2"
+                             data-reporte-encabezados="Codigo|Descripcion|Estado"
+                             data-reporte-titulo="Reporte de Perfiles"
+                             data-reporte-archivo="reporte_perfiles"
+                             data-reporte-codigo="RPF"
+                             data-reporte-modulo="Perfiles"
+                             data-reporte-registro-url="${pageContext.request.contextPath}/ReporteController"
+                             hidden>
+                        <div class="reporte-panel-header">
+                            <div>
+                                <h3>Reportes de Perfiles</h3>
+                                <p>Vista previa generada con la informacion visible del modulo.</p>
+                            </div>
+                            <div class="reporte-meta">
+                                <span>Registros: <strong data-reporte-total>0</strong></span>
+                                <span>Fecha: <strong data-reporte-fecha></strong></span>
+                            </div>
+                        </div>
+
+                        <div class="reporte-acciones">
+                            <button type="button" class="btn-crud celeste" data-reporte-accion="actualizar">
+                                Vista previa
+                            </button>
+                            <button type="button" class="btn-crud reporte" data-reporte-accion="pdf">PDF</button>
+                            <button type="button" class="btn-crud reporte" data-reporte-accion="excel">Excel</button>
+                            <button type="button" class="btn-crud reporte" data-reporte-accion="csv">CSV</button>
+                        </div>
+
+                        <div class="tabla-contenedor tabla-clara reporte-preview">
+                            <table class="tabla-crud" data-reporte-preview>
+                                <thead></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </section>
+                <% } %>
                 <div class="tabla-contenedor tabla-clara">
                     <table class="tabla-crud" id="tablaPerfiles" data-paginacion="true" data-paginacion-tamanio="5">
                         <thead>
@@ -211,5 +259,6 @@
 
         <script src="${pageContext.request.contextPath}/js/perfiles.js?v=20260615-seg1" defer></script>
         <script src="${pageContext.request.contextPath}/js/paginacion.js?v=20260611-pag1" defer></script>
+        <script src="${pageContext.request.contextPath}/js/reportes.js?v=20260621-hist1" defer></script>
     </body>
 </html>

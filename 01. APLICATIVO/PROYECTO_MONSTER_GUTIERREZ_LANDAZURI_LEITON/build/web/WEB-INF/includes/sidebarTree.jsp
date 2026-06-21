@@ -68,6 +68,9 @@
         if ("permisos.jsp".equals(rutaLower)) {
             return "PermisoController";
         }
+        if ("reportes.jsp".equals(rutaLower)) {
+            return "ReporteController";
+        }
 
         return ruta;
     }
