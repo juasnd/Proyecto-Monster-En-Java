@@ -81,10 +81,6 @@
                                     placeholder="Ingrese su contraseña"
                                     autocomplete="current-password"
                                 >
-
-                                <button type="button" id="btnMostrar" class="btn-mostrar">
-                                    Ver
-                                </button>
                             </div>
 
                             <small class="mensaje-error" id="errorPassword"></small>
