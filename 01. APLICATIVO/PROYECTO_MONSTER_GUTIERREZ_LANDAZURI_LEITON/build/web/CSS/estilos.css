@@ -1,7 +1,9 @@
 /*
     Document   : estilos.css
     Proyecto   : Master Monster
-    Versión    : depurada sin bloques repetidos
+    Versión    : minimalista depurada
+    Nota       : conserva la paleta original, elimina sombras fuertes,
+                 bordes demasiado redondos y efectos visuales exagerados.
 */
 
 /* =====================================================
@@ -39,10 +41,10 @@
     --exito: #4ade80;
     --exito-fondo: rgba(74, 222, 128, 0.13);
 
-    --radio: 10px;
-    --sombra: 0 22px 55px rgba(0, 115, 188, 0.28);
-    --sombra-suave: 0 8px 18px rgba(16, 24, 32, 0.12);
-    --transicion: all 0.22s ease;
+    --radio: 4px;
+    --sombra: none;
+    --sombra-suave: none;
+    --transicion: background-color .16s ease, color .16s ease, border-color .16s ease, opacity .16s ease;
 
     --topbar-alto: 88px;
     --sidebar-ancho: 225px;
@@ -102,7 +104,7 @@ img {
     background: var(--error-fondo);
     color: #ffb4b4;
     padding: 11px 14px;
-    border-radius: 6px;
+    border-radius: 4px;
     font-size: 14px;
     margin-bottom: 18px;
     text-align: center;
@@ -114,7 +116,7 @@ img {
     background: var(--exito-fondo);
     color: var(--exito);
     padding: 11px 14px;
-    border-radius: 6px;
+    border-radius: 4px;
     font-size: 14px;
     margin-bottom: 18px;
     text-align: center;
@@ -124,13 +126,11 @@ img {
 
 .input-error {
     border-color: var(--error) !important;
-    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.18) !important;
 }
 
 .input-correcto,
 .input-success {
     border-color: var(--exito) !important;
-    box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.15) !important;
 }
 
 .estado-badge {
@@ -139,7 +139,7 @@ img {
     justify-content: center;
     min-width: 86px;
     padding: 6px 10px;
-    border-radius: 999px;
+    border-radius: 3px;
     font-size: 12px;
     font-weight: 900;
     line-height: 1;
@@ -169,9 +169,8 @@ img {
     display: grid;
     grid-template-columns: 1fr 1fr;
     background: var(--oscuro-suave);
-    border-radius: 12px;
+    border-radius: 4px;
     overflow: hidden;
-    box-shadow: var(--sombra);
     border: 1px solid rgba(53, 200, 244, 0.18);
 }
 
@@ -196,7 +195,6 @@ img {
     width: 100%;
     height: auto;
     object-fit: contain;
-    filter: drop-shadow(0 7px 15px rgba(0,0,0,.45)) drop-shadow(0 0 12px rgba(53,200,244,.25));
 }
 
 .login-izquierda h1 {
@@ -228,7 +226,7 @@ img {
     min-height: 42px;
     padding: 8px 12px;
     border: 1px solid var(--texto-suave);
-    border-radius: 6px;
+    border-radius: 4px;
     background: rgba(255,255,255,.03);
     color: var(--blanco);
     font-size: 15px;
@@ -246,7 +244,6 @@ img {
 .grupo-campo textarea:focus {
     border-color: var(--azul-neon);
     background: rgba(53,200,244,.06);
-    box-shadow: 0 0 0 3px rgba(53,200,244,.20);
 }
 
 .campo-password {
@@ -261,7 +258,7 @@ img {
 .btn-mostrar {
     width: 64px;
     border: 1px solid var(--texto-suave);
-    border-radius: 6px;
+    border-radius: 4px;
     background: rgba(255,255,255,.03);
     color: var(--texto-claro);
     font-weight: 800;
@@ -278,7 +275,7 @@ img {
     width: 100%;
     height: 45px;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     margin-top: 12px;
     background: linear-gradient(90deg, var(--azul-profundo), var(--azul-monster), var(--azul-claro));
     color: var(--blanco);
@@ -286,13 +283,9 @@ img {
     font-size: 13px;
     letter-spacing: .8px;
     transition: var(--transicion);
-    box-shadow: 0 10px 22px rgba(0,166,223,.25);
 }
 
 .btn-ingresar:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 26px rgba(53,200,244,.38);
-    filter: brightness(1.08);
 }
 
 .olvido-password {
@@ -325,7 +318,7 @@ img {
     color: var(--azul-neon);
     border: 1px solid var(--azul-neon);
     padding: 13px 28px;
-    border-radius: 6px;
+    border-radius: 4px;
     font-size: 12px;
     font-weight: 900;
     transition: var(--transicion);
@@ -334,7 +327,6 @@ img {
 .crear-cuenta a:hover {
     background: var(--azul-neon);
     color: #07131c;
-    box-shadow: 0 0 18px rgba(53,200,244,.38);
 }
 
 .pie {
@@ -362,7 +354,7 @@ img {
 .login-derecha::after {
     content: "";
     position: absolute;
-    border-radius: 50%;
+    border-radius: 3px;
 }
 
 .login-derecha::before {
@@ -397,12 +389,6 @@ img {
 .logo-derecha img {
     width: 100%;
     object-fit: contain;
-    filter:
-        drop-shadow(3px 0 0 rgba(255,255,255,.85))
-        drop-shadow(-3px 0 0 rgba(255,255,255,.85))
-        drop-shadow(0 3px 0 rgba(255,255,255,.85))
-        drop-shadow(0 -3px 0 rgba(255,255,255,.85))
-        drop-shadow(0 10px 18px rgba(0,0,0,.35));
 }
 
 .contenido-derecha h2 {
@@ -439,8 +425,7 @@ img {
         radial-gradient(circle at top right, rgba(255,255,255,.13), transparent 28%),
         linear-gradient(135deg, rgba(0,85,140,.88), rgba(0,166,223,.78));
     border: 1px solid rgba(53,200,244,.28);
-    border-radius: 20px;
-    box-shadow: var(--sombra);
+    border-radius: 4px;
     padding: 56px 64px;
     display: grid;
     grid-template-columns: 1fr .85fr;
@@ -455,7 +440,7 @@ img {
     position: absolute;
     width: 420px;
     height: 420px;
-    border-radius: 50%;
+    border-radius: 3px;
     border: 34px solid rgba(255,255,255,.08);
     top: -140px;
     right: -90px;
@@ -473,7 +458,7 @@ img {
     align-items: center;
     justify-content: center;
     padding: 9px 16px;
-    border-radius: 999px;
+    border-radius: 3px;
     background: rgba(16,24,32,.35);
     color: var(--blanco);
     font-size: 13px;
@@ -512,12 +497,6 @@ img {
 
 .bienvenida-imagen img {
     width: 340px;
-    filter:
-        drop-shadow(3px 0 0 rgba(255,255,255,.60))
-        drop-shadow(-3px 0 0 rgba(255,255,255,.60))
-        drop-shadow(0 3px 0 rgba(255,255,255,.60))
-        drop-shadow(0 -3px 0 rgba(255,255,255,.60))
-        drop-shadow(0 20px 30px rgba(0,0,0,.40));
 }
 
 .footer-dashboard {
@@ -546,8 +525,6 @@ img {
     position: sticky;
     top: 0;
     z-index: 100;
-    backdrop-filter: blur(14px);
-    box-shadow: 0 8px 22px rgba(0,0,0,.18);
 }
 
 .topbar-logo-simple {
@@ -562,7 +539,6 @@ img {
     width: 82px;
     height: auto;
     flex: 0 0 auto;
-    filter: drop-shadow(0 5px 12px rgba(0,0,0,.42)) drop-shadow(0 0 12px rgba(53,200,244,.20));
 }
 
 .topbar-brand-text {
@@ -598,7 +574,7 @@ img {
     min-width: 150px;
     max-width: 230px;
     padding: 10px 14px;
-    border-radius: 14px;
+    border-radius: 4px;
     text-align: right;
 }
 
@@ -644,9 +620,8 @@ img {
     font-size: 14px;
     font-weight: 900;
     padding: 0 20px;
-    border-radius: 13px;
+    border-radius: 4px;
     background: linear-gradient(90deg, rgba(52,93,124,.96), rgba(111,149,173,.92));
-    box-shadow: 0 8px 18px rgba(0,0,0,.18);
     border: 1px solid rgba(255,255,255,.07);
     transition: var(--transicion);
     white-space: nowrap;
@@ -654,9 +629,6 @@ img {
 
 .btn-salir-simple:hover,
 .btn-salir:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.05);
-    box-shadow: 0 12px 26px rgba(0,0,0,.24);
 }
 
 /* evita que un menú viejo se mezcle con la topbar nueva */
@@ -694,7 +666,6 @@ img {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 12px 0 28px rgba(0,0,0,.16);
 }
 
 .sidebar-tree-title {
@@ -734,7 +705,7 @@ img {
 
 .sidebar-nav::-webkit-scrollbar-thumb {
     background: rgba(53,200,244,.22);
-    border-radius: 999px;
+    border-radius: 3px;
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb:hover {
@@ -780,7 +751,7 @@ img {
     align-items: center;
     gap: 9px;
     text-decoration: none;
-    border-radius: 10px;
+    border-radius: 4px;
     font-size: 14px;
     font-weight: 850;
     text-align: left;
@@ -803,7 +774,6 @@ img {
 .tree-link.activo {
     background: linear-gradient(90deg, rgba(0,115,188,.95), rgba(0,166,223,.88));
     color: #fff;
-    box-shadow: 0 8px 18px rgba(0,115,188,.20);
     position: relative;
 }
 
@@ -811,7 +781,7 @@ img {
     content: "";
     width: 4px;
     height: 70%;
-    border-radius: 999px;
+    border-radius: 3px;
     background: #fff;
     position: absolute;
     left: 0;
@@ -854,16 +824,15 @@ img {
     width: 8px;
     min-width: 8px;
     height: 8px;
-    border-radius: 999px;
+    border-radius: 3px;
     background: rgba(53,200,244,.85);
-    box-shadow: 0 0 8px rgba(53,200,244,.28);
 }
 
 .tree-children .tree-link {
     min-height: 38px;
     font-size: 13.5px;
     font-weight: 800;
-    border-radius: 9px;
+    border-radius: 4px;
     padding-left: 11px;
 }
 
@@ -938,7 +907,7 @@ img {
     min-height: 38px;
     padding: 0 15px;
     border: none;
-    border-radius: 10px;
+    border-radius: 4px;
     background: linear-gradient(90deg, rgba(52,93,124,.96), rgba(111,149,173,.92));
     color: #fff;
     font-size: 13px;
@@ -947,8 +916,6 @@ img {
 }
 
 .btn-volver-inicio:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.05);
 }
 
 .frame-modulo-treeview {
@@ -991,9 +958,8 @@ img {
 .crud-contenedor {
     background: rgba(255,255,255,.94);
     color: #263238;
-    border-radius: 12px;
+    border-radius: 4px;
     padding: 24px;
-    box-shadow: 0 18px 42px rgba(0,0,0,.28);
     border: 1px solid rgba(255,255,255,.25);
 }
 
@@ -1029,12 +995,11 @@ img {
     align-items: center;
     justify-content: center;
     border: none;
-    border-radius: 7px;
+    border-radius: 4px;
     color: #fff;
     text-decoration: none;
     font-size: 14px;
     font-weight: 900;
-    box-shadow: var(--sombra-suave);
     transition: var(--transicion);
 }
 
@@ -1069,8 +1034,6 @@ img {
 .btn-ficha:hover:not(:disabled),
 .btn-familiar-secundario:hover,
 .btn-familiar-tabla:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.04);
 }
 
 .btn-crud.verde { background: var(--btn-exito); }
@@ -1105,14 +1068,13 @@ img {
     height: 40px;
     padding: 8px 12px;
     border: 1px solid #cfd8dc;
-    border-radius: 6px;
+    border-radius: 4px;
     outline: none;
     font-size: 14px;
 }
 
 .buscar-registros input:focus {
     border-color: var(--azul-monster);
-    box-shadow: 0 0 0 3px rgba(0,115,188,.12);
 }
 
 .form-crud-box,
@@ -1123,7 +1085,7 @@ img {
 .detalle-empleado-bloque {
     background: #f5f7fa;
     border: 1px solid #dfe5ea;
-    border-radius: 8px;
+    border-radius: 4px;
     padding: 18px;
 }
 
@@ -1185,7 +1147,7 @@ img {
     min-height: 40px;
     padding: 8px 10px;
     border: 1px solid #cfd8dc;
-    border-radius: 6px;
+    border-radius: 4px;
     background: #fff;
     color: #263238;
     font-size: 14px;
@@ -1204,7 +1166,6 @@ img {
 .usuario-modal-form input:focus,
 .usuario-modal-form select:focus {
     border-color: var(--azul-monster);
-    box-shadow: 0 0 0 3px rgba(0,115,188,.12);
 }
 
 input:disabled,
@@ -1220,7 +1181,7 @@ select:disabled {
 .tabla-clara {
     width: 100%;
     overflow-x: auto;
-    border-radius: 8px;
+    border-radius: 4px;
     border: 1px solid #d5dde3;
 }
 
@@ -1297,14 +1258,13 @@ select:disabled {
     height: 42px;
     min-width: 42px;
     padding: 0;
-    border-radius: 10px;
+    border-radius: 4px;
     border: 1px solid rgba(159,200,216,.28);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0;
     text-decoration: none;
-    box-shadow: 0 8px 16px rgba(16,24,32,.12);
     transition: var(--transicion);
     color: transparent;
     font-size: 0;
@@ -1317,8 +1277,6 @@ select:disabled {
 .btn-accion-icono:hover,
 .usuario-acciones .btn-accion-icono:hover,
 .usuario-acciones-fase1 .btn-accion-icono:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.07);
 }
 
 .btn-accion-icono img,
@@ -1350,7 +1308,7 @@ select:disabled {
     min-width: 38px;
     min-height: 36px;
     border: 1px solid #cbd7df;
-    border-radius: 6px;
+    border-radius: 4px;
     background: #f8fafc;
     color: #263238;
     font-weight: 900;
@@ -1370,7 +1328,6 @@ select:disabled {
     cursor: not-allowed;
     opacity: .55;
     transform: none;
-    filter: none;
 }
 
 .tabla-paginacion-resumen {
@@ -1396,7 +1353,7 @@ select:disabled {
 .ficha-empleado form {
     background: #f5f7fa;
     border: 1px solid #dfe5ea;
-    border-radius: 8px;
+    border-radius: 4px;
     padding: 18px;
 }
 
@@ -1416,7 +1373,7 @@ select:disabled {
 .ficha-resumen {
     background: #fff;
     border: 1px solid #d5dde3;
-    border-radius: 8px;
+    border-radius: 4px;
     padding: 16px;
 }
 
@@ -1442,7 +1399,7 @@ select:disabled {
 .foto-empleado {
     background: #fff;
     border: 1px solid #d5dde3;
-    border-radius: 10px;
+    border-radius: 4px;
     padding: 12px;
     display: flex;
     flex-direction: column;
@@ -1456,7 +1413,7 @@ select:disabled {
     width: 100%;
     min-height: 135px;
     border: 2px dashed #b9c7cf;
-    border-radius: 8px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1471,7 +1428,7 @@ select:disabled {
     width: 100%;
     height: 135px;
     object-fit: cover;
-    border-radius: 5px;
+    border-radius: 3px;
 }
 
 .foto-marco-preview.con-foto {
@@ -1483,14 +1440,13 @@ select:disabled {
     width: 100%;
     min-height: 38px;
     padding: 9px 10px;
-    border-radius: 8px;
+    border-radius: 4px;
     background: var(--btn-neutro);
     color: #fff;
     font-size: 12px;
     font-weight: 900;
     text-align: center;
     cursor: pointer;
-    box-shadow: var(--sombra-suave);
 }
 
 .foto-empleado input[type="file"] {
@@ -1525,7 +1481,7 @@ select:disabled {
     padding: 9px 16px;
     border: 1px solid #d5dde3;
     border-bottom: none;
-    border-radius: 8px 8px 0 0;
+    border-radius: 4px 4px 0 0;
     background: #e8eef2;
     color: #37474f;
     font-size: 14px;
@@ -1568,7 +1524,7 @@ select:disabled {
     align-items: end;
     background: #f5f7fa;
     border: 1px solid #dfe5ea;
-    border-radius: 8px;
+    border-radius: 4px;
     padding: 16px;
 }
 
@@ -1589,7 +1545,7 @@ select:disabled {
 .empleado-mini-sin-foto {
     width: 52px;
     height: 52px;
-    border-radius: 8px;
+    border-radius: 4px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1886,7 +1842,6 @@ body.usuario-modal-abierto {
     justify-content: center;
     padding: 24px;
     background: rgba(7,19,28,.72);
-    backdrop-filter: blur(5px);
 }
 
 .panel-empleado-form[hidden],
@@ -1905,9 +1860,8 @@ body.usuario-modal-abierto {
     background: #f5f7fa;
     border: 1px solid #dfe5ea;
     border-left: 4px solid var(--btn-primario);
-    border-radius: 8px;
+    border-radius: 4px;
     padding: 18px;
-    box-shadow: 0 0 0 9999px rgba(7,19,28,.68), 0 28px 70px rgba(0,0,0,.38);
 }
 
 .panel-empleado-form {
@@ -1922,9 +1876,8 @@ body.usuario-modal-abierto {
     margin: 0;
     background: #f5f7fa;
     border: 1px solid #d5dde3;
-    border-radius: 12px;
+    border-radius: 4px;
     padding: 22px 22px 0;
-    box-shadow: 0 24px 56px rgba(7,19,28,.34);
 }
 
 .empleado-modal,
@@ -1936,13 +1889,12 @@ body.usuario-modal-abierto {
     background: #f5f7fa;
     color: #263238;
     border: 1px solid #d5dde3;
-    border-radius: 14px;
-    box-shadow: 0 28px 72px rgba(0,0,0,.36);
+    border-radius: 4px;
 }
 
 .empleado-modal {
     width: min(980px, 100%);
-    border-radius: 8px;
+    border-radius: 4px;
 }
 
 .usuario-modal {
@@ -1972,7 +1924,6 @@ body.usuario-modal-abierto {
     border: none !important;
     border-radius: 0 !important;
     background: transparent !important;
-    box-shadow: none !important;
     color: #40535f;
     font-size: 34px;
     font-weight: 900;
@@ -1990,7 +1941,6 @@ body.usuario-modal-abierto {
 .form-modal-cerrar:focus,
 .usuario-modal-cerrar:focus {
     color: var(--azul-monster);
-    transform: scale(1.06);
     outline: none;
 }
 
@@ -2044,7 +1994,7 @@ body.usuario-modal-abierto {
     width: 116px;
     height: 116px;
     flex: 0 0 auto;
-    border-radius: 8px;
+    border-radius: 4px;
     border: 1px solid #d5dde3;
     background: #edf1f4;
     display: flex;
@@ -2084,8 +2034,7 @@ body.usuario-modal-abierto {
     padding: 16px 18px;
     background: rgba(245,247,250,.96);
     border-top: 1px solid #d5dde3;
-    border-radius: 0 0 12px 12px;
-    backdrop-filter: blur(8px);
+    border-radius: 0 0 4px 4px;
 }
 
 .usuario-choice-grid,
@@ -2101,21 +2050,18 @@ body.usuario-modal-abierto {
     min-height: 130px;
     padding: 20px;
     border: 1px solid #d5dde3;
-    border-radius: 12px;
+    border-radius: 4px;
     background: #fff;
     color: #263238;
     text-align: left;
     text-decoration: none;
     cursor: pointer;
-    box-shadow: 0 10px 22px rgba(16,24,32,.08);
     transition: var(--transicion);
 }
 
 .usuario-choice-card:hover,
 .usuario-seguridad-card:hover {
-    transform: translateY(-2px);
     border-color: rgba(0,115,188,.38);
-    box-shadow: 0 16px 30px rgba(0,115,188,.14);
 }
 
 .usuario-choice-card strong,
@@ -2151,7 +2097,7 @@ body.usuario-modal-abierto {
     min-height: 66px;
     padding: 12px;
     border: 1px solid #dfe5ea;
-    border-radius: 10px;
+    border-radius: 4px;
     background: #fff;
 }
 
@@ -2347,7 +2293,6 @@ body.usuario-modal-abierto {
         max-height: 46vh;
         border-right: none;
         border-bottom: 1px solid var(--sidebar-borde);
-        box-shadow: 0 12px 28px rgba(0,0,0,.14);
     }
 
     .sidebar-nav {
@@ -2556,7 +2501,7 @@ body.usuario-modal-abierto {
 .permisos-filtro-box {
     background: #f5f7fa;
     border: 1px solid #dfe5ea;
-    border-radius: 10px;
+    border-radius: 4px;
     padding: 18px;
     margin-bottom: 18px;
 }
@@ -2592,7 +2537,7 @@ body.usuario-modal-abierto {
     min-height: 42px;
     padding: 8px 12px;
     border: 1px solid #cfd8dc;
-    border-radius: 7px;
+    border-radius: 4px;
     background: #ffffff;
     color: #263238;
     font-size: 14px;
@@ -2601,13 +2546,12 @@ body.usuario-modal-abierto {
 
 .permisos-filtro-form select:focus {
     border-color: var(--azul-monster);
-    box-shadow: 0 0 0 3px rgba(0, 115, 188, 0.12);
 }
 
 .permisos-filtro-form .btn-crud-form {
     width: 100%;
     min-height: 42px;
-    border-radius: 8px;
+    border-radius: 4px;
     background: var(--btn-primario);
     color: #ffffff;
 }
@@ -2622,7 +2566,7 @@ body.usuario-modal-abierto {
 
 .permisos-toolbar .btn-crud {
     min-height: 40px;
-    border-radius: 8px;
+    border-radius: 4px;
 }
 
 /* MATRIZ DE SUBSISTEMAS */
@@ -2636,10 +2580,9 @@ body.usuario-modal-abierto {
 .matriz-sistema-card {
     background: #ffffff;
     border: 1px solid #d5dde3;
-    border-radius: 14px;
+    border-radius: 4px;
     overflow: hidden;
     color: #263238;
-    box-shadow: 0 14px 30px rgba(16, 24, 32, 0.10);
 }
 
 .matriz-sistema-header {
@@ -2702,7 +2645,7 @@ body.usuario-modal-abierto {
 /* GRUPOS */
 .matriz-grupo-card {
     border: 1px solid #dfe5ea;
-    border-radius: 12px;
+    border-radius: 4px;
     overflow: hidden;
     background: #ffffff;
 }
@@ -2763,7 +2706,7 @@ body.usuario-modal-abierto {
 .matriz-card-vacia {
     padding: 14px;
     border: 1px dashed #cbd7df;
-    border-radius: 10px;
+    border-radius: 4px;
     background: #f9fbfc;
     color: #607d8b;
     font-size: 13px;
@@ -2794,11 +2737,10 @@ body.usuario-modal-abierto {
 .matriz-slider {
     position: absolute;
     inset: 0;
-    border-radius: 999px;
+    border-radius: 3px;
     background: #cbd5df;
     cursor: pointer;
     transition: 0.22s ease;
-    box-shadow: inset 0 2px 6px rgba(16, 24, 32, 0.18);
 }
 
 .matriz-slider::before {
@@ -2808,10 +2750,9 @@ body.usuario-modal-abierto {
     height: 24px;
     left: 3px;
     top: 3px;
-    border-radius: 50%;
+    border-radius: 3px;
     background: #ffffff;
     transition: 0.22s ease;
-    box-shadow: 0 4px 10px rgba(16, 24, 32, 0.22);
 }
 
 .matriz-switch-sm .matriz-slider::before {
@@ -2832,13 +2773,12 @@ body.usuario-modal-abierto {
 }
 
 .matriz-switch input:focus + .matriz-slider {
-    box-shadow: 0 0 0 3px rgba(0, 115, 188, 0.18);
 }
 
 .permisos-empty {
     padding: 20px;
     border: 1px dashed #cbd7df;
-    border-radius: 10px;
+    border-radius: 4px;
     background: #f9fbfc;
     color: #607d8b;
     font-size: 14px;
@@ -2914,7 +2854,6 @@ body.usuario-modal-abierto {
     max-width: 300px;
     object-fit: contain;
     display: block;
-    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.35));
 }
 
 /* Para que logo y usuario queden encima si se cruzan */
@@ -2934,7 +2873,7 @@ body.usuario-modal-abierto {
     width: 100%;
     min-height: 38px;
     border: none;
-    border-radius: 10px;
+    border-radius: 4px;
     background: transparent;
     color: var(--texto-claro);
     font-size: 15px;
@@ -2942,7 +2881,6 @@ body.usuario-modal-abierto {
     letter-spacing: 0.4px;
     text-align: left;
     cursor: pointer;
-    box-shadow: none;
     transition: all 0.2s ease;
     padding: 0 8px;
 }
@@ -2951,7 +2889,6 @@ body.usuario-modal-abierto {
     background: rgba(53, 200, 244, 0.10);
     color: #ffffff;
     transform: none;
-    filter: none;
 }
 
 .sidebar-tree-title {
@@ -2980,7 +2917,7 @@ body.usuario-modal-abierto {
     min-height: 64px;
     padding: 12px;
     border: 1px solid #dfe5ea;
-    border-radius: 10px;
+    border-radius: 4px;
     background: #ffffff;
 }
 
@@ -3023,4 +2960,231 @@ body.usuario-modal-abierto {
     .reporte-detalle-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* =====================================================
+   AJUSTE FINAL MINIMALISTA
+   Mantiene la paleta, pero elimina estilo inflado.
+===================================================== */
+
+.login-panel,
+.bienvenida-dashboard,
+.crud-contenedor,
+.form-crud-box,
+.panel-formulario,
+.detalle-crud,
+.formacion-grid,
+.familia-card,
+.detalle-empleado-bloque,
+.ficha-empleado form,
+.ficha-resumen,
+.foto-empleado,
+.tabla-contenedor,
+.tabla-clara,
+.empleado-modal,
+.usuario-modal,
+.panel-empleado-form form,
+.reporte-panel,
+.usuario-choice-card,
+.usuario-seguridad-card,
+.matriz-sistema-card,
+.matriz-grupo-card,
+.permisos-filtro-box,
+.permisos-empty,
+.matriz-card-vacia,
+.reporte-detalle-grid p,
+.usuario-detalle-grid div,
+.detalle-empleado-grid div {
+    box-shadow: none !important;
+    border-radius: var(--radio) !important;
+}
+
+.login-derecha::before,
+.login-derecha::after,
+.bienvenida-dashboard::before {
+    display: none !important;
+}
+
+.logo-monster img,
+.logo-derecha img,
+.bienvenida-imagen img,
+.topbar-logo-simple img,
+.topbar-gif-center img {
+    filter: none !important;
+}
+
+.btn-crud,
+.btn-crud-form,
+.btn-link,
+.btn-link-pequeno,
+.btn-dashboard-principal,
+.btn-dashboard-secundario,
+.btn-ficha,
+.btn-familiar-secundario,
+.btn-familiar-tabla,
+.btn-ingresar,
+.btn-mostrar,
+.btn-salir-simple,
+.btn-salir,
+.btn-volver-inicio,
+.btn-nuevo-usuario,
+.paginacion-btn,
+.tab-empleado,
+.foto-upload-label,
+.sidebar-inicio-btn,
+.acciones-tabla a,
+.acciones-tabla button,
+.btn-accion-icono,
+.usuario-acciones .btn-accion-icono,
+.usuario-acciones-fase1 .btn-accion-icono {
+    border-radius: var(--radio) !important;
+    box-shadow: none !important;
+    transform: none !important;
+    filter: none !important;
+}
+
+.btn-crud:hover,
+.btn-crud-form:hover,
+.btn-link:hover,
+.btn-link-pequeno:hover,
+.btn-dashboard-principal:hover,
+.btn-dashboard-secundario:hover,
+.btn-ficha:hover:not(:disabled),
+.btn-familiar-secundario:hover,
+.btn-familiar-tabla:hover,
+.btn-ingresar:hover,
+.btn-mostrar:hover,
+.btn-salir-simple:hover,
+.btn-salir:hover,
+.btn-volver-inicio:hover,
+.paginacion-btn:hover:not(:disabled),
+.acciones-tabla a:hover,
+.acciones-tabla button:hover,
+.btn-accion-icono:hover,
+.usuario-choice-card:hover,
+.usuario-seguridad-card:hover,
+.sidebar-inicio-btn:hover {
+    transform: none !important;
+    filter: none !important;
+    box-shadow: none !important;
+    opacity: .92;
+}
+
+.btn-ingresar,
+.btn-salir-simple,
+.btn-salir,
+.btn-volver-inicio,
+.btn-crud,
+.btn-crud-form,
+.btn-link,
+.btn-link-pequeno,
+.btn-ficha.principal {
+    background: var(--btn-primario) !important;
+}
+
+.btn-ingresar:hover,
+.btn-salir-simple:hover,
+.btn-salir:hover,
+.btn-volver-inicio:hover,
+.btn-crud:hover,
+.btn-crud-form:hover,
+.btn-link:hover,
+.btn-link-pequeno:hover,
+.btn-ficha.principal:hover {
+    background: var(--btn-primario-hover) !important;
+}
+
+.btn-crud.verde,
+.btn-ficha.verde,
+.btn-familiar-tabla.verde {
+    background: var(--btn-exito) !important;
+}
+
+.btn-crud.celeste,
+.btn-ficha.celeste {
+    background: var(--btn-secundario) !important;
+}
+
+.btn-crud.reporte,
+.btn-link-pequeno.secundario,
+.btn-ficha.secundario,
+.btn-familiar-secundario,
+.foto-upload-label {
+    background: var(--btn-neutro) !important;
+}
+
+.btn-link-pequeno.peligro,
+.btn-ficha.peligro,
+.btn-familiar-tabla.peligro {
+    background: var(--btn-peligro) !important;
+}
+
+.tree-toggle,
+.tree-link,
+.tree-children .tree-link {
+    border-radius: var(--radio) !important;
+    transition: background-color .16s ease, color .16s ease, border-color .16s ease;
+}
+
+.tree-link.activo {
+    background: var(--azul-profundo) !important;
+    box-shadow: none !important;
+}
+
+.tree-link.activo::before {
+    border-radius: 0 !important;
+}
+
+.tree-leaf-dot,
+.estado-badge,
+.estado-login,
+.badge-perfil-dashboard,
+.matriz-slider,
+.matriz-slider::before,
+.matriz-switch,
+.empleado-mini-foto,
+.empleado-mini-sin-foto,
+.empleado-foto-grande,
+.foto-marco,
+.foto-marco-preview {
+    border-radius: var(--radio) !important;
+    box-shadow: none !important;
+}
+
+.accion-ver { background: var(--btn-exito) !important; }
+.accion-editar { background: var(--btn-primario) !important; }
+.accion-eliminar { background: var(--btn-peligro) !important; }
+.accion-seguridad { background: var(--btn-neutro) !important; }
+
+.matriz-switch input:checked + .matriz-slider {
+    background: var(--azul-monster) !important;
+}
+
+.matriz-switch input:focus + .matriz-slider,
+.grupo-campo input:focus,
+.grupo-campo select:focus,
+.grupo-campo textarea:focus,
+.buscar-registros input:focus,
+.form-crud-lineal input:focus,
+.form-crud-lineal select:focus,
+.form-grid-empleado input:focus,
+.form-grid-empleado select:focus,
+.identidad-campos input:focus,
+.empleado-busqueda input:focus,
+.empleado-busqueda select:focus,
+.form-usuario-grid input:focus,
+.form-usuario-grid select:focus,
+.usuario-modal-form input:focus,
+.usuario-modal-form select:focus,
+.permisos-filtro-form select:focus {
+    box-shadow: none !important;
+}
+
+.topbar.topbar-monster-simple,
+.sidebar-tree,
+.modulo-header-treeview,
+.empleado-modal-header,
+.empleado-modal-actions {
+    box-shadow: none !important;
+    backdrop-filter: none !important;
 }
