@@ -13,11 +13,15 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet(
         name = "AsignacionUsuarioPerfilController",
-        urlPatterns = {"/AsignacionUsuarioPerfilController"}
+        urlPatterns = {
+            "/AsignacionUsuarioPerfilController"
+        }
 )
-public class AsignacionUsuarioPerfilController extends HttpServlet {
+public class AsignacionUsuarioPerfilController
+        extends HttpServlet {
 
-    private final PerfilDAO perfilDAO = new PerfilDAO();
+    private final PerfilDAO perfilDAO
+            = new PerfilDAO();
 
     private final AsignacionUsuarioPerfilDAO asignacionDAO
             = new AsignacionUsuarioPerfilDAO();
@@ -37,62 +41,144 @@ public class AsignacionUsuarioPerfilController extends HttpServlet {
             HttpServletResponse response
     ) throws ServletException, IOException {
 
-        String perfilCodigo = obtenerValor(request, "perfilCodigo");
-        String accion = obtenerValor(request, "accion");
+        request.setCharacterEncoding(
+                StandardCharsets.UTF_8.name()
+        );
+
+        String perfilCodigo
+                = valor(request, "perfilCodigo");
+
+        String accion
+                = valor(request, "accion");
 
         if (perfilCodigo.isEmpty()) {
+
             redirigir(
                     request,
                     response,
                     "",
                     "seleccione_perfil"
             );
+
             return;
         }
 
+        boolean resultado;
+        String mensajeExito;
+
         switch (accion) {
 
-            case "asignarSeleccionados":
-                asignarSeleccionados(
-                        request,
-                        response,
-                        perfilCodigo
-                );
-                break;
+            case "asignarSeleccionados": {
 
-            case "asignarTodos":
-                asignarTodos(
-                        request,
-                        response,
-                        perfilCodigo
-                );
-                break;
+                String[] usuariosDisponibles
+                        = request.getParameterValues(
+                                "usuariosDisponibles"
+                        );
 
-            case "retirarSeleccionados":
-                retirarSeleccionados(
-                        request,
-                        response,
-                        perfilCodigo
-                );
-                break;
+                if (
+                        usuariosDisponibles == null
+                        || usuariosDisponibles.length == 0
+                ) {
 
-            case "retirarTodos":
-                retirarTodos(
-                        request,
-                        response,
-                        perfilCodigo
-                );
-                break;
+                    redirigir(
+                            request,
+                            response,
+                            perfilCodigo,
+                            "seleccione_usuario"
+                    );
 
-            default:
+                    return;
+                }
+
+                resultado
+                        = asignacionDAO.asignarUsuarios(
+                                perfilCodigo,
+                                usuariosDisponibles
+                        );
+
+                mensajeExito = "asignados";
+
+                break;
+            }
+
+            case "asignarTodos": {
+
+                resultado
+                        = asignacionDAO.asignarTodos(
+                                perfilCodigo
+                        );
+
+                mensajeExito = "asignados_todos";
+
+                break;
+            }
+
+            case "retirarSeleccionados": {
+
+                String[] usuariosAsignados
+                        = request.getParameterValues(
+                                "usuariosAsignados"
+                        );
+
+                if (
+                        usuariosAsignados == null
+                        || usuariosAsignados.length == 0
+                ) {
+
+                    redirigir(
+                            request,
+                            response,
+                            perfilCodigo,
+                            "seleccione_usuario"
+                    );
+
+                    return;
+                }
+
+                resultado
+                        = asignacionDAO.retirarUsuarios(
+                                perfilCodigo,
+                                usuariosAsignados
+                        );
+
+                mensajeExito = "retirados";
+
+                break;
+            }
+
+            case "retirarTodos": {
+
+                resultado
+                        = asignacionDAO.retirarTodos(
+                                perfilCodigo
+                        );
+
+                mensajeExito = "retirados_todos";
+
+                break;
+            }
+
+            default: {
+
                 redirigir(
                         request,
                         response,
                         perfilCodigo,
                         "accion_invalida"
                 );
-                break;
+
+                return;
+            }
         }
+
+        redirigir(
+                request,
+                response,
+                perfilCodigo,
+                resultado
+                        ? mensajeExito
+                        : "error"
+        );
     }
 
     private void listar(
@@ -101,7 +187,7 @@ public class AsignacionUsuarioPerfilController extends HttpServlet {
     ) throws ServletException, IOException {
 
         String perfilCodigo
-                = obtenerValor(request, "perfilCodigo");
+                = valor(request, "perfilCodigo");
 
         request.setAttribute(
                 "perfiles",
@@ -117,126 +203,22 @@ public class AsignacionUsuarioPerfilController extends HttpServlet {
 
             request.setAttribute(
                     "usuariosDisponibles",
-                    asignacionDAO.listarDisponibles(perfilCodigo)
+                    asignacionDAO.listarDisponibles(
+                            perfilCodigo
+                    )
             );
 
             request.setAttribute(
                     "usuariosAsignados",
-                    asignacionDAO.listarAsignados(perfilCodigo)
+                    asignacionDAO.listarAsignados(
+                            perfilCodigo
+                    )
             );
         }
 
         request.getRequestDispatcher(
                 "/asignarUsuariosPerfil.jsp"
         ).forward(request, response);
-    }
-
-    private void asignarSeleccionados(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            String perfilCodigo
-    ) throws IOException {
-
-        String[] usuarios
-                = request.getParameterValues(
-                        "usuariosDisponibles"
-                );
-
-        if (usuarios == null || usuarios.length == 0) {
-            redirigir(
-                    request,
-                    response,
-                    perfilCodigo,
-                    "seleccione_usuario"
-            );
-            return;
-        }
-
-        boolean resultado
-                = asignacionDAO.asignarUsuarios(
-                        perfilCodigo,
-                        usuarios
-                );
-
-        redirigir(
-                request,
-                response,
-                perfilCodigo,
-                resultado ? "asignados" : "error"
-        );
-    }
-
-    private void asignarTodos(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            String perfilCodigo
-    ) throws IOException {
-
-        boolean resultado
-                = asignacionDAO.asignarTodos(
-                        perfilCodigo
-                );
-
-        redirigir(
-                request,
-                response,
-                perfilCodigo,
-                resultado ? "asignados_todos" : "error"
-        );
-    }
-
-    private void retirarSeleccionados(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            String perfilCodigo
-    ) throws IOException {
-
-        String[] usuarios
-                = request.getParameterValues(
-                        "usuariosAsignados"
-                );
-
-        if (usuarios == null || usuarios.length == 0) {
-            redirigir(
-                    request,
-                    response,
-                    perfilCodigo,
-                    "seleccione_usuario"
-            );
-            return;
-        }
-
-        boolean resultado
-                = asignacionDAO.retirarUsuarios(
-                        perfilCodigo,
-                        usuarios
-                );
-
-        redirigir(
-                request,
-                response,
-                perfilCodigo,
-                resultado ? "retirados" : "error"
-        );
-    }
-
-    private void retirarTodos(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            String perfilCodigo
-    ) throws IOException {
-
-        boolean resultado
-                = asignacionDAO.retirarTodos(
-                        perfilCodigo
-                );
-
-        redirigir(
-                request,
-                response,
-                perfilCodigo,
-                resultado ? "retirados_todos" : "error"
-        );
     }
 
     private void redirigir(
@@ -246,15 +228,21 @@ public class AsignacionUsuarioPerfilController extends HttpServlet {
             String mensaje
     ) throws IOException {
 
-        String perfilCodificado = URLEncoder.encode(
-                perfilCodigo == null ? "" : perfilCodigo,
-                StandardCharsets.UTF_8.name()
-        );
+        String perfilCodificado
+                = URLEncoder.encode(
+                        perfilCodigo == null
+                                ? ""
+                                : perfilCodigo,
+                        StandardCharsets.UTF_8.name()
+                );
 
-        String mensajeCodificado = URLEncoder.encode(
-                mensaje,
-                StandardCharsets.UTF_8.name()
-        );
+        String mensajeCodificado
+                = URLEncoder.encode(
+                        mensaje == null
+                                ? ""
+                                : mensaje,
+                        StandardCharsets.UTF_8.name()
+                );
 
         response.sendRedirect(
                 request.getContextPath()
@@ -264,15 +252,16 @@ public class AsignacionUsuarioPerfilController extends HttpServlet {
         );
     }
 
-    private String obtenerValor(
+    private String valor(
             HttpServletRequest request,
-            String parametro
+            String nombre
     ) {
 
-        String valor = request.getParameter(parametro);
+        String dato
+                = request.getParameter(nombre);
 
-        return valor == null
+        return dato == null
                 ? ""
-                : valor.trim();
+                : dato.trim();
     }
 }

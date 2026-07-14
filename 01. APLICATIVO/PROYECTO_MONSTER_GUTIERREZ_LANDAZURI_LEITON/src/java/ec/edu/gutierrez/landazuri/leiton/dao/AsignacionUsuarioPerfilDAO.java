@@ -27,6 +27,17 @@ public class AsignacionUsuarioPerfilDAO extends BaseDAO {
                 + "p.PEPER_CEDULA, "
                 + "p.PEPER_NOMBRE, "
                 + "p.PEPER_APELLIDO, "
+
+                + "COALESCE(( "
+                + "    SELECT up2.XEPER_CODIGO "
+                + "    FROM xeuxp_usuper up2 "
+                + "    WHERE up2.PEPER_CODIGO = u.PEPER_CODIGO "
+                + "      AND up2.XEUSU_LOGIN = u.XEUSU_LOGIN "
+                + "      AND up2.XEUXP_FECRET IS NULL "
+                + "    ORDER BY up2.XEUXP_FECASI DESC "
+                + "    LIMIT 1 "
+                + "), '') AS XEPER_CODIGO, "
+
                 + "COALESCE(( "
                 + "    SELECT pf2.XEPER_DESCRI "
                 + "    FROM xeuxp_usuper up2 "
@@ -38,9 +49,12 @@ public class AsignacionUsuarioPerfilDAO extends BaseDAO {
                 + "    ORDER BY up2.XEUXP_FECASI DESC "
                 + "    LIMIT 1 "
                 + "), 'Sin perfil') AS XEPER_DESCRI "
+
                 + "FROM xeusu_usuari u "
+
                 + "LEFT JOIN peper_person p "
                 + "    ON p.PEPER_CODIGO = u.PEPER_CODIGO "
+
                 + "WHERE NOT EXISTS ( "
                 + "    SELECT 1 "
                 + "    FROM xeuxp_usuper up "
@@ -49,6 +63,7 @@ public class AsignacionUsuarioPerfilDAO extends BaseDAO {
                 + "      AND up.XEPER_CODIGO = ? "
                 + "      AND up.XEUXP_FECRET IS NULL "
                 + ") "
+
                 + "ORDER BY p.PEPER_APELLIDO, "
                 + "p.PEPER_NOMBRE, "
                 + "u.XEUSU_LOGIN";
@@ -94,16 +109,22 @@ public class AsignacionUsuarioPerfilDAO extends BaseDAO {
                 + "p.PEPER_APELLIDO, "
                 + "pf.XEPER_CODIGO, "
                 + "pf.XEPER_DESCRI "
+
                 + "FROM xeusu_usuari u "
+
                 + "LEFT JOIN peper_person p "
                 + "    ON p.PEPER_CODIGO = u.PEPER_CODIGO "
+
                 + "INNER JOIN xeuxp_usuper up "
                 + "    ON up.PEPER_CODIGO = u.PEPER_CODIGO "
                 + "    AND up.XEUSU_LOGIN = u.XEUSU_LOGIN "
                 + "    AND up.XEUXP_FECRET IS NULL "
+
                 + "INNER JOIN xeper_perfil pf "
                 + "    ON pf.XEPER_CODIGO = up.XEPER_CODIGO "
+
                 + "WHERE up.XEPER_CODIGO = ? "
+
                 + "ORDER BY p.PEPER_APELLIDO, "
                 + "p.PEPER_NOMBRE, "
                 + "u.XEUSU_LOGIN";
@@ -271,13 +292,11 @@ public class AsignacionUsuarioPerfilDAO extends BaseDAO {
             try (PreparedStatement ps = con.prepareStatement(sql)) {
 
                 int procesados = 0;
-
-                Date fechaActual
-                        = new Date(System.currentTimeMillis());
+                Date hoy = fechaActual();
 
                 for (String login : limpiarLogins(logins)) {
 
-                    ps.setDate(1, fechaActual);
+                    ps.setDate(1, hoy);
                     ps.setString(2, perfilCodigo.trim());
                     ps.setString(3, login);
 
@@ -326,15 +345,8 @@ public class AsignacionUsuarioPerfilDAO extends BaseDAO {
                 PreparedStatement ps = con.prepareStatement(sql)
         ) {
 
-            ps.setDate(
-                    1,
-                    new Date(System.currentTimeMillis())
-            );
-
-            ps.setString(
-                    2,
-                    perfilCodigo.trim()
-            );
+            ps.setDate(1, fechaActual());
+            ps.setString(2, perfilCodigo.trim());
 
             ps.executeUpdate();
 
@@ -365,7 +377,7 @@ public class AsignacionUsuarioPerfilDAO extends BaseDAO {
         }
 
         /*
-         * Cerramos cualquier perfil activo anterior.
+         * Cerramos cualquier asignación activa anterior.
          * Esto mantiene un solo perfil activo por usuario.
          */
         cerrarAsignacionesActivas(
@@ -375,8 +387,8 @@ public class AsignacionUsuarioPerfilDAO extends BaseDAO {
         );
 
         /*
-         * Primero se intenta reactivar una relación histórica
-         * que ya exista entre el usuario y el perfil.
+         * Si el usuario ya tuvo este perfil anteriormente,
+         * reactivamos la relación existente.
          */
         String reactivar
                 = "UPDATE xeuxp_usuper "
@@ -391,25 +403,10 @@ public class AsignacionUsuarioPerfilDAO extends BaseDAO {
                 = con.prepareStatement(reactivar)
         ) {
 
-            ps.setDate(
-                    1,
-                    new Date(System.currentTimeMillis())
-            );
-
-            ps.setString(
-                    2,
-                    personaCodigo
-            );
-
-            ps.setString(
-                    3,
-                    login
-            );
-
-            ps.setString(
-                    4,
-                    perfilCodigo
-            );
+            ps.setDate(1, fechaActual());
+            ps.setString(2, personaCodigo);
+            ps.setString(3, login);
+            ps.setString(4, perfilCodigo);
 
             if (ps.executeUpdate() > 0) {
                 return true;
@@ -417,7 +414,7 @@ public class AsignacionUsuarioPerfilDAO extends BaseDAO {
         }
 
         /*
-         * Si la relación nunca existió, se crea.
+         * Si nunca tuvo este perfil, creamos la relación.
          */
         String insertar
                 = "INSERT INTO xeuxp_usuper "
@@ -433,25 +430,10 @@ public class AsignacionUsuarioPerfilDAO extends BaseDAO {
                 = con.prepareStatement(insertar)
         ) {
 
-            ps.setString(
-                    1,
-                    personaCodigo
-            );
-
-            ps.setString(
-                    2,
-                    login
-            );
-
-            ps.setString(
-                    3,
-                    perfilCodigo
-            );
-
-            ps.setDate(
-                    4,
-                    new Date(System.currentTimeMillis())
-            );
+            ps.setString(1, personaCodigo);
+            ps.setString(2, login);
+            ps.setString(3, perfilCodigo);
+            ps.setDate(4, fechaActual());
 
             return ps.executeUpdate() > 0;
         }
@@ -475,20 +457,9 @@ public class AsignacionUsuarioPerfilDAO extends BaseDAO {
                 = con.prepareStatement(sql)
         ) {
 
-            ps.setDate(
-                    1,
-                    new Date(System.currentTimeMillis())
-            );
-
-            ps.setString(
-                    2,
-                    personaCodigo
-            );
-
-            ps.setString(
-                    3,
-                    login
-            );
+            ps.setDate(1, fechaActual());
+            ps.setString(2, personaCodigo);
+            ps.setString(3, login);
 
             ps.executeUpdate();
         }
@@ -510,10 +481,7 @@ public class AsignacionUsuarioPerfilDAO extends BaseDAO {
                 = con.prepareStatement(sql)
         ) {
 
-            ps.setString(
-                    1,
-                    login
-            );
+            ps.setString(1, login);
 
             try (ResultSet rs = ps.executeQuery()) {
 
@@ -536,6 +504,7 @@ public class AsignacionUsuarioPerfilDAO extends BaseDAO {
         String sql
                 = "SELECT u.XEUSU_LOGIN "
                 + "FROM xeusu_usuari u "
+
                 + "WHERE NOT EXISTS ( "
                 + "    SELECT 1 "
                 + "    FROM xeuxp_usuper up "
@@ -544,6 +513,7 @@ public class AsignacionUsuarioPerfilDAO extends BaseDAO {
                 + "      AND up.XEPER_CODIGO = ? "
                 + "      AND up.XEUXP_FECRET IS NULL "
                 + ") "
+
                 + "ORDER BY u.XEUSU_LOGIN";
 
         try (
@@ -551,15 +521,11 @@ public class AsignacionUsuarioPerfilDAO extends BaseDAO {
                 = con.prepareStatement(sql)
         ) {
 
-            ps.setString(
-                    1,
-                    perfilCodigo
-            );
+            ps.setString(1, perfilCodigo);
 
             try (ResultSet rs = ps.executeQuery()) {
 
                 while (rs.next()) {
-
                     logins.add(
                             rs.getString("XEUSU_LOGIN")
                     );
@@ -578,10 +544,7 @@ public class AsignacionUsuarioPerfilDAO extends BaseDAO {
         for (String login : logins) {
 
             if (!vacio(login)) {
-
-                resultado.add(
-                        login.trim()
-                );
+                resultado.add(login.trim());
             }
         }
 
@@ -645,6 +608,13 @@ public class AsignacionUsuarioPerfilDAO extends BaseDAO {
         );
 
         return usuario;
+    }
+
+    private Date fechaActual() {
+
+        return new Date(
+                System.currentTimeMillis()
+        );
     }
 
     private boolean vacio(String valor) {

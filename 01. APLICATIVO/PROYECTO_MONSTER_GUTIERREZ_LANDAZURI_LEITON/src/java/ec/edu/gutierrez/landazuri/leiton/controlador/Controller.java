@@ -53,6 +53,10 @@ public class Controller extends HttpServlet {
 
             List<MenuOpcion> menu = usuarioDAO.obtenerMenuUsuario(usuario);
             Perfil perfil = usuario.getPerfil();
+            if (perfil == null) {
+                perfil = obtenerPerfilDesdeMenu(menu);
+                usuario.setPerfil(perfil);
+            }
 
             HttpSession sesion = request.getSession();
             sesion.setAttribute("usuarioLogueado", nombreUsuario);
@@ -82,6 +86,47 @@ public class Controller extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/index.jsp?error=intentos&num=" + intentos);
             }
         }
+    }
+
+    private Perfil obtenerPerfilDesdeMenu(List<MenuOpcion> menu) {
+        if (menu == null) {
+            return null;
+        }
+
+        for (MenuOpcion opcion : menu) {
+            Perfil perfil = obtenerPerfilDesdeOpcion(opcion);
+
+            if (perfil != null) {
+                return perfil;
+            }
+        }
+
+        return null;
+    }
+
+    private Perfil obtenerPerfilDesdeOpcion(MenuOpcion opcion) {
+        if (opcion == null) {
+            return null;
+        }
+
+        if (opcion.getPerfilCodigo() != null && !opcion.getPerfilCodigo().trim().isEmpty()) {
+            Perfil perfil = new Perfil();
+            perfil.setCodigo(opcion.getPerfilCodigo());
+            perfil.setDescripcion(opcion.getPerfilDescripcion());
+            return perfil;
+        }
+
+        if (opcion.getHijos() != null) {
+            for (MenuOpcion hijo : opcion.getHijos()) {
+                Perfil perfil = obtenerPerfilDesdeOpcion(hijo);
+
+                if (perfil != null) {
+                    return perfil;
+                }
+            }
+        }
+
+        return null;
     }
 
     private Set<String> construirPermisos(List<MenuOpcion> menu) {
